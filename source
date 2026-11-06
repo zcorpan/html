@@ -4840,6 +4840,20 @@ a.setAttribute('href', 'https://example.com/'); // change the content attribute 
     </ul>
    </dd>
 
+   <dt>Streams</dt>
+   <dd>
+    <p>The following terms are defined in <cite>Streams</cite>: <ref>STREAMS</ref></p>
+
+    <ul class="brief">
+     <li><dfn data-x-href="https://streams.spec.whatwg.org/#writablestream"><code>WritableStream</code></dfn></li>
+     <li><dfn data-x="writablestream-set-up" data-x-href="https://streams.spec.whatwg.org/#writablestream-set-up">set up</dfn> a <code>WritableStream</code></li>
+     <li><dfn data-x="writablestream-error" data-x-href="https://streams.spec.whatwg.org/#writablestream-error">error</dfn> a <code>WritableStream</code></li>
+     <li><dfn data-x="writablestream-set-up-writealgorithm" data-x-href="https://streams.spec.whatwg.org/#writablestream-set-up-writealgorithm"><i>writeAlgorithm</i></dfn></li>
+     <li><dfn data-x="writablestream-set-up-closealgorithm" data-x-href="https://streams.spec.whatwg.org/#writablestream-set-up-closealgorithm"><i>closeAlgorithm</i></dfn></li>
+     <li><dfn data-x="writablestream-set-up-abortalgorithm" data-x-href="https://streams.spec.whatwg.org/#writablestream-set-up-abortalgorithm"><i>abortAlgorithm</i></dfn></li>
+    </ul>
+   </dd>
+
    <dt>Web App Manifest</dt>
 
    <dd>
@@ -5024,6 +5038,7 @@ a.setAttribute('href', 'https://example.com/'); // change the content attribute 
      <li><dfn data-x="tt-getcompliantstring" data-x-href="https://w3c.github.io/trusted-types/dist/spec/#get-trusted-type-compliant-string">get trusted type compliant string</dfn></li>
      <li>The <dfn data-x="tt-pre-navigation-check" data-x-href="https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-pre-navigation-check"><code data-x="">require-trusted-types-for</code> pre-navigation check</dfn> algorithm</li>
      <li><dfn data-x="tt-getcompliantinput" data-x-href="https://w3c.github.io/trusted-types/dist/spec/#get-trusted-type-compliant-input">get trusted type compliant input</dfn></li>
+     <li><dfn data-x="tt-getcompliantparseroptions" data-x-href="https://w3c.github.io/trusted-types/dist/spec/#get-trusted-type-compliant-parser-options">get trusted type compliant parser options</dfn></li>
      <li><dfn data-x="tt-trustedhtmlparseroptions-sanitizer-configuration" data-x-href="https://w3c.github.io/trusted-types/dist/spec/#trustedhtmlparseroptions-sanitizer-configuration"><code>TrustedHTMLParserOptions</code> sanitizer configuration</dfn></li>
      <li><dfn data-x="tt-trustedhtmlparseroptions-runscripts" data-x-href="https://w3c.github.io/trusted-types/dist/spec/#trustedhtmlparseroptions-runscripts"><code>TrustedHTMLParserOptions</code> runScripts</dfn></li>
      <li>The <dfn data-x="tt-update-script-trustedness" data-x-href="https://w3c.github.io/trusted-types/dist/spec/#update-script-trustedness">update script trustedness</dfn> algorithm</li>
@@ -68658,8 +68673,17 @@ document.body.append(script1, script2);
    <li><p>Set <var>el</var>'s <span>preparation-time document</span> to its <span>node
    document</span>.</p></li>
 
-   <li><p>If <var>parser document</var> is non-null, and <var>parser document</var> is not equal to
-   <var>el</var>'s <span>preparation-time document</span>, then return.</p></li>
+   <li>
+    <p>If <var>parser document</var> is non-null, and <var>parser document</var>'s <span>script
+    execution document</span> is not equal to <var>el</var>'s <span>preparation-time
+    document</span>, then return.</p>
+
+    <p class="note">This prevents a parser-inserted <code>script</code> element that was moved to
+    another document before its end tag was parsed from executing. For a <code>script</code> element
+    created by an <span>HTML insertion stream</span>, <var>parser document</var> is the stream's
+    parser's own inert <code>Document</code>, and its <span>script execution document</span> is the
+    document the stream was created for.</p>
+   </li>
 
    <li id="script-processing-noscript"> <p>If <span data-x="concept-n-noscript">scripting is
    disabled</span> for <var>el</var>, then return.</p>
@@ -69098,6 +69122,13 @@ document.body.append(script1, script2);
    </li>
   </ol>
   </div>
+
+  <p>Each <code>Document</code> has a <dfn>script execution document</dfn>, which is a
+  <code>Document</code>, initially the <code>Document</code> itself. It is the document in which
+  <span>parser-inserted</span> <code>script</code> elements whose <span>parser document</span> is
+  this <code>Document</code> can execute. It is only different for the <code>Document</code> of a
+  parser created by <span>create an HTML fragment parser</span>, which inserts nodes into another
+  document.</p>
 
   <p>Each <code>Document</code> has a <dfn>pending parsing-blocking script</dfn>, which is a
   <code>script</code> element or null, initially null.</p>
@@ -126312,6 +126343,12 @@ document.body.appendChild(frame)</code></pre>
   [<span>CEReactions</span>] undefined <span data-x="dom-Element-setHTMLUnsafe">setHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
   [<span>CEReactions</span>] undefined <span data-x="dom-Element-appendHTMLUnsafe">appendHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
   [<span>CEReactions</span>] undefined <span data-x="dom-Element-prependHTMLUnsafe">prependHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [<span>CEReactions</span>, NewObject] <span>WritableStream</span> <span data-x="dom-Element-streamHTML">streamHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-Element-streamAppendHTML">streamAppendHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-Element-streamPrependHTML">streamPrependHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [<span>CEReactions</span>, NewObject] <span>WritableStream</span> <span data-x="dom-Element-streamHTMLUnsafe">streamHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-Element-streamAppendHTMLUnsafe">streamAppendHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-Element-streamPrependHTMLUnsafe">streamPrependHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
   DOMString <span data-x="dom-Element-getHTML">getHTML</span>(optional <span>GetHTMLOptions</span> options = {});
 
   [<span>CEReactions</span>] attribute (<span data-x="tt-trustedhtml">TrustedHTML</span> or [<span>LegacyNullToEmptyString</span>] DOMString) <span data-x="dom-Element-innerHTML">innerHTML</span>;
@@ -126326,6 +126363,12 @@ partial interface <span id="ShadowRoot-partial">ShadowRoot</span> {
   [<span>CEReactions</span>] undefined <span data-x="dom-ShadowRoot-setHTMLUnsafe">setHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
   [<span>CEReactions</span>] undefined <span data-x="dom-ShadowRoot-appendHTMLUnsafe">appendHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
   [<span>CEReactions</span>] undefined <span data-x="dom-ShadowRoot-prependHTMLUnsafe">prependHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [<span>CEReactions</span>, NewObject] <span>WritableStream</span> <span data-x="dom-ShadowRoot-streamHTML">streamHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-ShadowRoot-streamAppendHTML">streamAppendHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-ShadowRoot-streamPrependHTML">streamPrependHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [<span>CEReactions</span>, NewObject] <span>WritableStream</span> <span data-x="dom-ShadowRoot-streamHTMLUnsafe">streamHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-ShadowRoot-streamAppendHTMLUnsafe">streamAppendHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-ShadowRoot-streamPrependHTMLUnsafe">streamPrependHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
   DOMString <span data-x="dom-ShadowRoot-getHTML">getHTML</span>(optional <span>GetHTMLOptions</span> options = {});
 
   [<span>CEReactions</span>] attribute (<span data-x="tt-trustedhtml">TrustedHTML</span> or [<span>LegacyNullToEmptyString</span>] DOMString) <span data-x="dom-ShadowRoot-innerHTML">innerHTML</span>;
@@ -126338,6 +126381,12 @@ partial interface mixin <span id="NonDocumentTypeChildNode-partial">NonDocumentT
   [<span>CEReactions</span>] undefined <span data-x="dom-NonDocumentTypeChildNode-beforeHTMLUnsafe">beforeHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
   [<span>CEReactions</span>] undefined <span data-x="dom-NonDocumentTypeChildNode-afterHTMLUnsafe">afterHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
   [<span>CEReactions</span>] undefined <span data-x="dom-NonDocumentTypeChildNode-replaceWithHTMLUnsafe">replaceWithHTMLUnsafe</span>((<span data-x="tt-trustedhtml">TrustedHTML</span> or DOMString) html, optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-NonDocumentTypeChildNode-streamBeforeHTML">streamBeforeHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-NonDocumentTypeChildNode-streamAfterHTML">streamAfterHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [<span>CEReactions</span>, NewObject] <span>WritableStream</span> <span data-x="dom-NonDocumentTypeChildNode-streamReplaceWithHTML">streamReplaceWithHTML</span>(optional <span>SetHTMLOptions</span> options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-NonDocumentTypeChildNode-streamBeforeHTMLUnsafe">streamBeforeHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [NewObject] <span>WritableStream</span> <span data-x="dom-NonDocumentTypeChildNode-streamAfterHTMLUnsafe">streamAfterHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
+  [<span>CEReactions</span>, NewObject] <span>WritableStream</span> <span data-x="dom-NonDocumentTypeChildNode-streamReplaceWithHTMLUnsafe">streamReplaceWithHTMLUnsafe</span>(optional (<span>SetHTMLUnsafeOptions</span> or <span data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</span>) options = {});
 };
 
 enum <dfn enum>SanitizerPresets</dfn> { "<span data-x="dom-SanitizerPresets-default">default</span>" };
@@ -127215,6 +127264,883 @@ enum <dfn enum>DOMParserSupportedType</dfn> {
 
   </div>
 
+  <h4 id="html-streaming-methods">HTML streaming methods</h4>
+
+  <p>The <span>HTML streaming methods</span> are like the <span>HTML insertion methods</span>,
+  except that instead of taking a string, they return a <code>WritableStream</code>. Strings written
+  to the stream are parsed incrementally by a single HTML parser, and the resulting nodes are
+  inserted as they are parsed, so that content appears while it is still arriving. The position
+  where content is inserted is determined when the method is called.</p>
+
+  <div class="example">
+   <p>The following fetches an article and streams it into an <code>article</code> element:</p>
+
+   <pre><code class="js">const response = await fetch("/article.html");
+await response.body
+  .pipeThrough(new TextDecoderStream())
+  .pipeTo(article.streamAppendHTML());</code></pre>
+  </div>
+
+  <dl class="domintro">
+   <dt><code data-x=""><var>stream</var> = <var>element</var>.<span subdfn data-x="dom-Element-streamHTML">streamHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>shadowRoot</var>.<span subdfn data-x="dom-ShadowRoot-streamHTML">streamHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>element</var>.<span subdfn data-x="dom-Element-streamHTMLUnsafe">streamHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>shadowRoot</var>.<span subdfn data-x="dom-ShadowRoot-streamHTMLUnsafe">streamHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dd><p>Removes the children of <var>element</var> (or its <span>template contents</span> in the
+   case of a <code>template</code> element) or <var>shadowRoot</var>, and returns a
+   <code>WritableStream</code> whose parsed output is inserted in their place.</p></dd>
+
+   <dt><code data-x=""><var>stream</var> = <var>element</var>.<span subdfn data-x="dom-Element-streamAppendHTML">streamAppendHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>shadowRoot</var>.<span subdfn data-x="dom-ShadowRoot-streamAppendHTML">streamAppendHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>element</var>.<span subdfn data-x="dom-Element-streamAppendHTMLUnsafe">streamAppendHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>shadowRoot</var>.<span subdfn data-x="dom-ShadowRoot-streamAppendHTMLUnsafe">streamAppendHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dd><p>Returns a <code>WritableStream</code> whose parsed output is appended to
+   <var>element</var> (or its <span>template contents</span>) or <var>shadowRoot</var>.</p></dd>
+
+   <dt><code data-x=""><var>stream</var> = <var>element</var>.<span subdfn data-x="dom-Element-streamPrependHTML">streamPrependHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>shadowRoot</var>.<span subdfn data-x="dom-ShadowRoot-streamPrependHTML">streamPrependHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>element</var>.<span subdfn data-x="dom-Element-streamPrependHTMLUnsafe">streamPrependHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>shadowRoot</var>.<span subdfn data-x="dom-ShadowRoot-streamPrependHTMLUnsafe">streamPrependHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dd><p>Returns a <code>WritableStream</code> whose parsed output is inserted before what was the
+   first child of <var>element</var> (or its <span>template contents</span>) or
+   <var>shadowRoot</var> when the method was called. If there was no child, the output is
+   appended.</p></dd>
+
+   <dt><code data-x=""><var>stream</var> = <var>node</var>.<span subdfn data-x="dom-NonDocumentTypeChildNode-streamBeforeHTML">streamBeforeHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>node</var>.<span subdfn data-x="dom-NonDocumentTypeChildNode-streamBeforeHTMLUnsafe">streamBeforeHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dd><p>Returns a <code>WritableStream</code> whose parsed output is inserted before
+   <var>node</var>.</p></dd>
+
+   <dt><code data-x=""><var>stream</var> = <var>node</var>.<span subdfn data-x="dom-NonDocumentTypeChildNode-streamAfterHTML">streamAfterHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>node</var>.<span subdfn data-x="dom-NonDocumentTypeChildNode-streamAfterHTMLUnsafe">streamAfterHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dd><p>Returns a <code>WritableStream</code> whose parsed output is inserted before what was
+   <var>node</var>'s next sibling when the method was called. If there was no next sibling, the
+   output is appended to <var>node</var>'s parent.</p></dd>
+
+   <dt><code data-x=""><var>stream</var> = <var>node</var>.<span subdfn data-x="dom-NonDocumentTypeChildNode-streamReplaceWithHTML">streamReplaceWithHTML</span>(<var>options</var>)</code></dt>
+   <dt><code data-x=""><var>stream</var> = <var>node</var>.<span subdfn data-x="dom-NonDocumentTypeChildNode-streamReplaceWithHTMLUnsafe">streamReplaceWithHTMLUnsafe</span>(<var>options</var>)</code></dt>
+   <dd><p>Removes <var>node</var>, and returns a <code>WritableStream</code> whose parsed output is
+   inserted where <var>node</var> was.</p></dd>
+  </dl>
+
+  <div var-scope>
+  <p>For all of these methods:</p>
+
+  <ul>
+   <li><p>The context for the HTML parser is the same as for the corresponding <span data-x="HTML
+   insertion methods">HTML insertion method</span>: <var>element</var>, <var>shadowRoot</var>'s
+   <span data-x="concept-DocumentFragment-host">host</span>, or <var>node</var>'s parent (or, if
+   that parent is a <span>shadow root</span> or <span>template contents</span>, its <span
+   data-x="concept-DocumentFragment-host">host</span>). Nodes are created in the document they are
+   inserted into.</p></li>
+
+   <li><p>The methods without the <code data-x="">Unsafe</code> suffix always <span>sanitize</span>
+   the markup as it is parsed, based on <var>options</var>'s <code
+   data-x="dom-SetHTMLOptions-sanitizer">sanitizer</code> member, <span
+   data-x="dom-Sanitizer-removeUnsafe">remove unsafe content</span>, and never run scripts. The
+   <code data-x="">Unsafe</code> methods sanitize only if <var>options</var> has a <code
+   data-x="dom-SetHTMLUnsafeOptions-sanitizer">sanitizer</code> member or is a <code
+   data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</code> object with a non-null
+   sanitizer configuration, and run scripts only if <var>options</var>'s <code
+   data-x="dom-SetHTMLUnsafeOptions-runScripts">runScripts</code> is true (unless altered by a
+   Trusted Types default policy).</p></li>
+
+   <li><p>Each chunk written to the stream is converted to a string (it is not decoded; use <code
+   data-x="">TextDecoderStream</code> for bytes), and parsed as far as possible before the write's
+   promise settles. <code data-x="">close()</code> settles once all input has been parsed and any
+   parser-blocking script has run. <code data-x="">abort()</code> stops parsing; nodes that were
+   already inserted stay where they are, and no streamed script runs afterwards.</p></li>
+
+   <li><p>With <code data-x="dom-SetHTMLUnsafeOptions-runScripts">runScripts</code>, and if the
+   target is <span>connected</span>, scripts behave as during the loading of a document, in the
+   target's document: a classic external script without <code
+   data-x="attr-script-async">async</code> or <code data-x="attr-script-defer">defer</code> blocks
+   the parser until it has run (writes made meanwhile are buffered, and don't wait for it), <code
+   data-x="attr-script-defer">defer</code> and module scripts run in order after <code
+   data-x="">close()</code> settles, and <code data-x="attr-script-async">async</code> scripts run
+   when they are ready. A script that fails to load or throws does not affect the stream. Scripts
+   don't run if the target is disconnected (they can run later, once inserted, as if they were
+   inserted by script), or once the target or the script has moved to another document.</p></li>
+
+   <li><p>Writes and closes initiated by a streamed script or a <span
+   data-x="concept-custom-element-reaction">custom element reaction</span> are processed after the
+   rest of the input that is already being parsed. Likewise, <code data-x="">abort()</code> called
+   during a write takes effect once that write's chunk has been parsed; called at another time, for
+   example from a script that runs once a parser-blocking script has been fetched, it stops parsing
+   right away.</p></li>
+  </ul>
+
+  <p>Throws a <span>"<code>HierarchyRequestError</code>"</span> <code>DOMException</code> if
+  <var>element</var> is an <code>html</code> element (except for <code
+  data-x="dom-Element-streamHTML">streamHTML()</code> and <code
+  data-x="dom-Element-streamHTMLUnsafe">streamHTMLUnsafe()</code>), or if <var>node</var> has no
+  parent or its parent is a <code>Document</code>, an <code>html</code> element, a
+  <code>template</code> element, or a <code>DocumentFragment</code> without a <span
+  data-x="concept-DocumentFragment-host">host</span>. Throws a
+  <span>"<code>NotSupportedError</code>"</span> <code>DOMException</code> if the context for the
+  HTML parser is an HTML or SVG <code>script</code> element. Throws a <code>TypeError</code> if the
+  sanitizer configuration is invalid, or, for the <code data-x="">Unsafe</code> methods, if Trusted
+  Types are enforced, <var>options</var> is not a <code
+  data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</code> object, and there is no
+  default policy whose <code data-x="">createParserOptions</code> returns a non-null value.
+  Exceptions thrown by a default policy are rethrown. If any of these is thrown, the DOM is not
+  modified.</p>
+
+  <p>The stream errors with a <span>"<code>HierarchyRequestError</code>"</span>
+  <code>DOMException</code> if a node would be inserted before the node that the output is inserted
+  before (the original first child, <var>node</var>, or <var>node</var>'s original next sibling), or
+  another chunk is written, after that node has stopped being a child of the node the output is
+  inserted into. The node that would have been inserted, and the rest of the input, is dropped.</p>
+
+  <p class="warning">The methods with an <code data-x="">Unsafe</code> suffix perform no
+  sanitization to remove potentially-dangerous elements and attributes like <code>script</code> or
+  <span>event handler content attributes</span>, unless a sanitizer is given.</p>
+
+  <p class="note">Unlike <code data-x="dom-NonDocumentTypeChildNode-beforeHTML">beforeHTML()</code>
+  and friends, which do nothing if <var>node</var> has no parent, the child node methods throw,
+  since a stream whose output is silently discarded would be a hard-to-notice mistake. A node that
+  loses its parent while streaming errors the stream in the same way, if it is the node the output
+  is inserted before (for <code
+  data-x="dom-NonDocumentTypeChildNode-streamBeforeHTML">streamBeforeHTML()</code>, <var>node</var>
+  itself; for <code data-x="dom-NonDocumentTypeChildNode-streamAfterHTML">streamAfterHTML()</code>
+  and <code
+  data-x="dom-NonDocumentTypeChildNode-streamReplaceWithHTML">streamReplaceWithHTML()</code>, its
+  original next sibling). Similarly, unlike <code data-x="dom-Element-setHTML">setHTML()</code>,
+  streaming into a <code>script</code> element throws.</p>
+  </div>
+
+  <div w-nodev>
+
+  <p>The <dfn>HTML streaming methods</dfn> are <code
+  data-x="dom-Element-streamHTML">streamHTML()</code>, <code
+  data-x="dom-Element-streamAppendHTML">streamAppendHTML()</code>, <code
+  data-x="dom-Element-streamPrependHTML">streamPrependHTML()</code>, <code
+  data-x="dom-NonDocumentTypeChildNode-streamBeforeHTML">streamBeforeHTML()</code>, <code
+  data-x="dom-NonDocumentTypeChildNode-streamAfterHTML">streamAfterHTML()</code>, and <code
+  data-x="dom-NonDocumentTypeChildNode-streamReplaceWithHTML">streamReplaceWithHTML()</code>,
+  together with their <code data-x="">Unsafe</code> counterparts.</p>
+
+  <p class="note">As for the <span>HTML insertion methods</span>, the Trusted Types sink names of
+  the <code data-x="">Unsafe</code> <code>NonDocumentTypeChildNode</code> methods use "<code
+  data-x="">Node</code>" as the interface name (e.g., "<code data-x="">Node
+  streamBeforeHTMLUnsafe</code>").</p>
+
+  <div algorithm>
+  <p><code>Element</code>'s <dfn method for="Element"><code
+  data-x="dom-Element-streamHTML">streamHTML(<var>options</var>)</code></dfn> method steps are to
+  return the result of <span data-x="stream HTML">streaming HTML</span> given <span>this</span>,
+  <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and "<code
+  data-x="">replace children</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>Element</code>'s <dfn method for="Element"><code
+  data-x="dom-Element-streamAppendHTML">streamAppendHTML(<var>options</var>)</code></dfn> method
+  steps are to return the result of <span data-x="stream HTML">streaming HTML</span> given
+  <span>this</span>, <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and
+  "<code data-x="">append</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>Element</code>'s <dfn method for="Element"><code
+  data-x="dom-Element-streamPrependHTML">streamPrependHTML(<var>options</var>)</code></dfn> method
+  steps are to return the result of <span data-x="stream HTML">streaming HTML</span> given
+  <span>this</span>, <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and
+  "<code data-x="">prepend</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>ShadowRoot</code>'s <dfn method for="ShadowRoot"><code
+  data-x="dom-ShadowRoot-streamHTML">streamHTML(<var>options</var>)</code></dfn> method steps are to
+  return the result of <span data-x="stream HTML">streaming HTML</span> given <span>this</span>,
+  <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and "<code
+  data-x="">replace children</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>ShadowRoot</code>'s <dfn method for="ShadowRoot"><code
+  data-x="dom-ShadowRoot-streamAppendHTML">streamAppendHTML(<var>options</var>)</code></dfn> method
+  steps are to return the result of <span data-x="stream HTML">streaming HTML</span> given
+  <span>this</span>, <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and
+  "<code data-x="">append</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>ShadowRoot</code>'s <dfn method for="ShadowRoot"><code
+  data-x="dom-ShadowRoot-streamPrependHTML">streamPrependHTML(<var>options</var>)</code></dfn>
+  method steps are to return the result of <span data-x="stream HTML">streaming HTML</span> given
+  <span>this</span>, <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and
+  "<code data-x="">prepend</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>NonDocumentTypeChildNode</code>'s <dfn method for="NonDocumentTypeChildNode"><code
+  data-x="dom-NonDocumentTypeChildNode-streamBeforeHTML">streamBeforeHTML(<var>options</var>)</code></dfn>
+  method steps are to return the result of <span data-x="stream HTML">streaming HTML</span> given
+  <span>this</span>, <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and
+  "<code data-x="">before</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>NonDocumentTypeChildNode</code>'s <dfn method for="NonDocumentTypeChildNode"><code
+  data-x="dom-NonDocumentTypeChildNode-streamAfterHTML">streamAfterHTML(<var>options</var>)</code></dfn>
+  method steps are to return the result of <span data-x="stream HTML">streaming HTML</span> given
+  <span>this</span>, <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and
+  "<code data-x="">after</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>NonDocumentTypeChildNode</code>'s <dfn method for="NonDocumentTypeChildNode"><code
+  data-x="dom-NonDocumentTypeChildNode-streamReplaceWithHTML">streamReplaceWithHTML(<var>options</var>)</code></dfn>
+  method steps are to return the result of <span data-x="stream HTML">streaming HTML</span> given
+  <span>this</span>, <var>options</var>, <span data-x="fragment-parser-mode-safe">Safe</span>, and
+  "<code data-x="">replace</code>".</p>
+  </div>
+
+  <div algorithm>
+  <p><code>Element</code>'s <dfn method for="Element"><code
+  data-x="dom-Element-streamHTMLUnsafe">streamHTMLUnsafe(<var>options</var>)</code></dfn> method
+  steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">Element streamHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code data-x="">replace
+   children</code>".</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p><code>Element</code>'s <dfn method for="Element"><code
+  data-x="dom-Element-streamAppendHTMLUnsafe">streamAppendHTMLUnsafe(<var>options</var>)</code></dfn>
+  method steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">Element streamAppendHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code data-x="">append</code>".</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p><code>Element</code>'s <dfn method for="Element"><code
+  data-x="dom-Element-streamPrependHTMLUnsafe">streamPrependHTMLUnsafe(<var>options</var>)</code></dfn>
+  method steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">Element streamPrependHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code
+   data-x="">prepend</code>".</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p><code>ShadowRoot</code>'s <dfn method for="ShadowRoot"><code
+  data-x="dom-ShadowRoot-streamHTMLUnsafe">streamHTMLUnsafe(<var>options</var>)</code></dfn> method
+  steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">ShadowRoot streamHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code data-x="">replace
+   children</code>".</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p><code>ShadowRoot</code>'s <dfn method for="ShadowRoot"><code
+  data-x="dom-ShadowRoot-streamAppendHTMLUnsafe">streamAppendHTMLUnsafe(<var>options</var>)</code></dfn>
+  method steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">ShadowRoot streamAppendHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code data-x="">append</code>".</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p><code>ShadowRoot</code>'s <dfn method for="ShadowRoot"><code
+  data-x="dom-ShadowRoot-streamPrependHTMLUnsafe">streamPrependHTMLUnsafe(<var>options</var>)</code></dfn>
+  method steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">ShadowRoot streamPrependHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code
+   data-x="">prepend</code>".</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p><code>NonDocumentTypeChildNode</code>'s <dfn method for="NonDocumentTypeChildNode"><code
+  data-x="dom-NonDocumentTypeChildNode-streamBeforeHTMLUnsafe">streamBeforeHTMLUnsafe(<var>options</var>)</code></dfn>
+  method steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">Node streamBeforeHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code data-x="">before</code>".</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p><code>NonDocumentTypeChildNode</code>'s <dfn method for="NonDocumentTypeChildNode"><code
+  data-x="dom-NonDocumentTypeChildNode-streamAfterHTMLUnsafe">streamAfterHTMLUnsafe(<var>options</var>)</code></dfn>
+  method steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">Node streamAfterHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code data-x="">after</code>".</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p><code>NonDocumentTypeChildNode</code>'s <dfn method for="NonDocumentTypeChildNode"><code
+  data-x="dom-NonDocumentTypeChildNode-streamReplaceWithHTMLUnsafe">streamReplaceWithHTMLUnsafe(<var>options</var>)</code></dfn>
+  method steps are:</p>
+
+  <ol>
+   <li><p>Let <var>compliantOptions</var> be the result of invoking the <span
+   data-x="tt-getcompliantparseroptions">get trusted type compliant parser options</span> algorithm
+   with <span>this</span>'s <span>relevant global object</span>, <var>options</var>, true, and
+   "<code data-x="">Node streamReplaceWithHTMLUnsafe</code>".</p></li>
+
+   <li><p>Return the result of <span data-x="stream HTML">streaming HTML</span> given
+   <span>this</span>, <var>compliantOptions</var>, <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>, and "<code
+   data-x="">replace</code>".</p></li>
+  </ol>
+  </div>
+
+  <hr>
+
+  <p>An <dfn>HTML insertion stream</dfn> is a <span>struct</span> with the following <span
+  data-x="struct item">items</span>:</p>
+
+  <dl>
+   <dt><dfn data-x="html-insertion-stream-parser">parser</dfn></dt>
+   <dd><p>An <span>HTML parser</span>, created by <span>create an HTML fragment
+   parser</span>.</p></dd>
+
+   <dt><dfn data-x="html-insertion-stream-writable">writable stream</dfn></dt>
+   <dd><p>The <code>WritableStream</code> returned to script.</p></dd>
+
+   <dt><dfn data-x="html-insertion-stream-target">target</dfn></dt>
+   <dd><p>The <code>Element</code> or <code>DocumentFragment</code> into which top-level nodes are
+   inserted.</p></dd>
+
+   <dt><dfn data-x="html-insertion-stream-reference-child">reference child</dfn></dt>
+   <dd><p>The <code>Node</code> before which top-level nodes are inserted, or null to append them.
+   It is determined when the stream is created and never changes.</p></dd>
+
+   <dt><dfn data-x="html-insertion-stream-running">running</dfn></dt>
+   <dd><p>A boolean, initially false. It is true while the <span
+   data-x="html-insertion-stream-parser">parser</span> is running, so that writes and closes from
+   script that runs meanwhile don't run the parser reentrantly.</p></dd>
+
+   <dt><dfn data-x="html-insertion-stream-halted">halted</dfn></dt>
+   <dd><p>A boolean, initially false. Once it is true, the <span
+   data-x="html-insertion-stream-parser">parser</span> is <span
+   data-x="concept-parser-halted">halted</span> and does nothing further.</p></dd>
+
+   <dt><dfn data-x="html-insertion-stream-error">error</dfn></dt>
+   <dd><p>A JavaScript value, initially undefined. The reason the stream was <span
+   data-x="html-insertion-stream-halted">halted</span>.</p></dd>
+
+   <dt><dfn data-x="html-insertion-stream-close-promise">close promise</dfn></dt>
+   <dd><p>A promise or null, initially null. It is non-null once the stream is being closed, and
+   settles once all input has been parsed.</p></dd>
+  </dl>
+
+  <div algorithm>
+  <p>To <dfn data-x="stream HTML">stream HTML</dfn>, given a <code>Node</code> <var>node</var>, a
+  <code>SetHTMLOptions</code> or <code>SetHTMLUnsafeOptions</code> dictionary, or a <code
+  data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</code> object <var>options</var>, a
+  <span>fragment parser mode</span> <var>mode</var> (<span
+  data-x="fragment-parser-mode-safe">Safe</span> or <span
+  data-x="fragment-parser-mode-unsafe">Unsafe</span>), and a <var>position</var>, which is one of
+  "<code data-x="">replace children</code>", "<code data-x="">append</code>", "<code
+  data-x="">prepend</code>", "<code data-x="">before</code>", "<code data-x="">after</code>", or
+  "<code data-x="">replace</code>":</p>
+
+  <ol>
+   <li><p>Let <var>target</var> be null.</p></li>
+
+   <li>
+    <p>If <var>position</var> is "<code data-x="">replace children</code>", "<code
+    data-x="">append</code>", or "<code data-x="">prepend</code>":</p>
+
+    <ol>
+     <li><p>Set <var>target</var> to <var>node</var> if <var>node</var> is a
+     <code>ShadowRoot</code>; otherwise the <span>target for HTML insertion</span> given
+     <var>node</var>.</p></li>
+
+     <li><p>If <var>position</var> is not "<code data-x="">replace children</code>" and
+     <var>target</var> is an <code>html</code> element, then throw a
+     <span>"<code>HierarchyRequestError</code>"</span> <code>DOMException</code>.</p></li>
+    </ol>
+   </li>
+
+   <li>
+    <p>Otherwise:</p>
+
+    <ol>
+     <li><p>Set <var>target</var> to the <span>parent for HTML insertion</span> given
+     <var>node</var>.</p></li>
+
+     <li><p>If <var>target</var> is null or an <code>html</code> element, then throw a
+     <span>"<code>HierarchyRequestError</code>"</span> <code>DOMException</code>.</p></li>
+    </ol>
+   </li>
+
+   <li><p>Let <var>context</var> be <var>target</var> if <var>target</var> is an
+   <code>Element</code>; otherwise <var>target</var>'s <span
+   data-x="concept-DocumentFragment-host">host</span>.</p></li>
+
+   <li><p>If <var>context</var>'s <span data-x="concept-element-local-name">local name</span> is
+   "<code data-x="">script</code>" and <var>context</var>'s <span
+   data-x="concept-element-namespace">namespace</span> is the <span>HTML namespace</span> or the
+   <span>SVG namespace</span>, then throw a <span>"<code>NotSupportedError</code>"</span>
+   <code>DOMException</code>.</p></li>
+
+   <li><p>Let <var>sanitizerConfig</var> be the result of <span data-x="get a sanitizer config from
+   options">getting a sanitizer config from options</span> given <var>options</var> and true if
+   <var>mode</var> is <span data-x="fragment-parser-mode-safe">Safe</span>, or false
+   otherwise.</p></li>
+
+   <li><p>Let <var>runScripts</var> be <var>options</var>'s <span
+   data-x="tt-trustedhtmlparseroptions-runscripts">runScripts</span> if <var>options</var> is a
+   <code data-x="tt-trustedhtmlparseroptions">TrustedHTMLParserOptions</code>; otherwise
+   <var>options</var>["<code data-x="dom-SetHTMLUnsafeOptions-runScripts">runScripts</code>"] <span
+   data-x="map with default">with default</span> false.</p></li>
+
+   <li><p><span>Assert</span>: if <var>runScripts</var> is true, then <var>mode</var> is <span
+   data-x="fragment-parser-mode-unsafe">Unsafe</span>.</p></li>
+
+   <li><p>Let <var>scriptingMode</var> be <span data-x="scripting-mode-normal">Normal</span> if
+   <var>runScripts</var> is true; otherwise <span
+   data-x="scripting-mode-inert">Inert</span>.</p></li>
+
+   <li>
+    <p>Let <var>referenceChild</var> be the result of switching on <var>position</var>:</p>
+
+    <dl class="switch">
+     <dt>"<code data-x="">replace children</code>"</dt>
+     <dt>"<code data-x="">append</code>"</dt>
+     <dd>null</dd>
+
+     <dt>"<code data-x="">prepend</code>"</dt>
+     <dd><var>target</var>'s <span>first child</span></dd>
+
+     <dt>"<code data-x="">before</code>"</dt>
+     <dd><var>node</var></dd>
+
+     <dt>"<code data-x="">after</code>"</dt>
+     <dt>"<code data-x="">replace</code>"</dt>
+     <dd><var>node</var>'s <span>next sibling</span></dd>
+    </dl>
+   </li>
+
+   <li><p>If <var>position</var> is "<code data-x="">replace children</code>", then <span
+   data-x="concept-node-replace-all">replace all</span> with null within <var>target</var>.</p></li>
+
+   <li><p>If <var>position</var> is "<code data-x="">replace</code>", then <span
+   data-x="concept-node-remove">remove</span> <var>node</var>.</p></li>
+
+   <li><p>Let (<var>parser</var>, <var ignore>insertionParent</var>) be the result of <span
+   data-x="create an HTML fragment parser">creating an HTML fragment parser</span> given
+   <var>target</var>, (<var>target</var>, <var>referenceChild</var>), true,
+   <var>scriptingMode</var>, and <var>sanitizerConfig</var>.</p></li>
+
+   <li><p>Let <var>writable</var> be a new <code>WritableStream</code> in <var>node</var>'s <span
+   data-x="concept-relevant-realm">relevant realm</span>.</p></li>
+
+   <li><p>Let <var>stream</var> be a new <span>HTML insertion stream</span> whose <span
+   data-x="html-insertion-stream-parser">parser</span> is <var>parser</var>, <span
+   data-x="html-insertion-stream-writable">writable stream</span> is <var>writable</var>, <span
+   data-x="html-insertion-stream-target">target</span> is <var>target</var>, and <span
+   data-x="html-insertion-stream-reference-child">reference child</span> is
+   <var>referenceChild</var>.</p></li>
+
+   <li><p>Set <var>parser</var>'s <span data-x="concept-parser-stream">stream</span> to
+   <var>stream</var>.</p></li>
+
+   <li><p><span data-x="writablestream-set-up">Set up</span> <var>writable</var> with <i
+   data-x="writablestream-set-up-writealgorithm">writeAlgorithm</i> set to the following steps,
+   given <var>chunk</var>: return the result of <span data-x="write to an HTML insertion
+   stream">writing</span> <var>chunk</var> to <var>stream</var>; <i
+   data-x="writablestream-set-up-closealgorithm">closeAlgorithm</i> set to the following steps:
+   return the result of <span data-x="close an HTML insertion stream">closing</span>
+   <var>stream</var>; and <i data-x="writablestream-set-up-abortalgorithm">abortAlgorithm</i> set to
+   the following steps, given <var>reason</var>: <span data-x="halt an HTML insertion
+   stream">halt</span> <var>stream</var> given <var>reason</var>.</p></li>
+
+   <li><p>Return <var>writable</var>.</p></li>
+  </ol>
+
+  <p class="note">All checks that can throw happen before the DOM is modified. The checks for
+  <var>options</var> that the Trusted Types integration performs happen before this algorithm is
+  invoked, and can run script; so <var>target</var> and <var>referenceChild</var> are determined
+  afterward.</p>
+  </div>
+
+  <div algorithm>
+  <p>To <dfn data-x="write to an HTML insertion stream">write</dfn> a JavaScript value
+  <var>chunk</var> to an <span>HTML insertion stream</span> <var>stream</var>:</p>
+
+  <ol>
+   <li><p>Let <var>html</var> be <var>chunk</var>, <span
+   data-x="concept-idl-convert">converted</span> to a <code data-x="idl-DOMString">DOMString</code>.
+   If this throws an exception <var>e</var>, then <span data-x="halt an HTML insertion
+   stream">halt</span> <var>stream</var> given <var>e</var>, and return <span>a promise rejected
+   with</span> <var>e</var>.</p></li>
+
+   <li>
+    <p>If <var>stream</var>'s <span data-x="html-insertion-stream-reference-child">reference
+    child</span> is non-null and its <span>parent</span> is not <var>stream</var>'s <span
+    data-x="html-insertion-stream-target">target</span>:</p>
+
+    <ol>
+     <li><p>Let <var>error</var> be a new <span>"<code>HierarchyRequestError</code>"</span>
+     <code>DOMException</code> created in <var>stream</var>'s <span
+     data-x="html-insertion-stream-writable">writable stream</span>'s <span
+     data-x="concept-relevant-realm">relevant realm</span>.</p></li>
+
+     <li><p><span data-x="halt an HTML insertion stream">Halt</span> <var>stream</var> given
+     <var>error</var>.</p></li>
+
+     <li><p>Return <span>a promise rejected with</span> <var>error</var>.</p></li>
+    </ol>
+
+    <p class="note">Otherwise, moving the <span
+    data-x="html-insertion-stream-reference-child">reference child</span> away and back between
+    writes, without anything being inserted meanwhile, does not affect the stream.</p>
+   </li>
+
+   <li><p>Insert <var>html</var> at the end of <var>stream</var>'s <span
+   data-x="html-insertion-stream-parser">parser</span>'s <span>input stream</span>.</p></li>
+
+   <li><p><span data-x="run an HTML insertion stream">Run</span> <var>stream</var>.</p></li>
+
+   <li><p>If <var>stream</var>'s <span data-x="html-insertion-stream-halted">halted</span> is true,
+   then return <span>a promise rejected with</span> <var>stream</var>'s <span
+   data-x="html-insertion-stream-error">error</span>.</p></li>
+
+   <li><p>Return <span>a promise resolved with</span> undefined.</p></li>
+  </ol>
+
+  <p class="note">The returned promise does not wait for a <span>pending parsing-blocking
+  script</span>; input written while the parser waits for one is parsed once it has run. If the
+  write was made by script that runs while the parser is running, the input is parsed later by that
+  ongoing run, so the promise can settle before <var>html</var> is parsed.</p>
+  </div>
+
+  <div algorithm>
+  <p>To <dfn data-x="close an HTML insertion stream">close</dfn> an <span>HTML insertion
+  stream</span> <var>stream</var>:</p>
+
+  <ol>
+   <li><p>Insert an <span>explicit "EOF" character</span> at the end of <var>stream</var>'s <span
+   data-x="html-insertion-stream-parser">parser</span>'s <span>input stream</span>.</p></li>
+
+   <li><p>Set <var>stream</var>'s <span data-x="html-insertion-stream-close-promise">close
+   promise</span> to a new promise.</p></li>
+
+   <li><p><span data-x="run an HTML insertion stream">Run</span> <var>stream</var>.</p></li>
+
+   <li><p>Return <var>stream</var>'s <span data-x="html-insertion-stream-close-promise">close
+   promise</span>.</p></li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p>To <dfn data-x="halt an HTML insertion stream">halt</dfn> an <span>HTML insertion stream</span>
+  <var>stream</var> given a JavaScript value <var>error</var>:</p>
+
+  <ol>
+   <li><p>If <var>stream</var>'s <span data-x="html-insertion-stream-halted">halted</span> is true,
+   then return.</p></li>
+
+   <li><p>Set <var>stream</var>'s <span data-x="html-insertion-stream-halted">halted</span> to
+   true.</p></li>
+
+   <li><p>Set <var>stream</var>'s <span data-x="html-insertion-stream-error">error</span> to
+   <var>error</var>.</p></li>
+
+   <li><p>If <var>stream</var>'s <span data-x="html-insertion-stream-close-promise">close
+   promise</span> is non-null, then reject it with <var>error</var>.</p></li>
+
+   <li><p>If <var>stream</var>'s <span data-x="html-insertion-stream-running">running</span> is
+   false, then <span data-x="clean up an HTML insertion stream">clean up</span>
+   <var>stream</var>.</p></li>
+  </ol>
+
+  <p class="note">Halting happens when the stream is aborted, when a chunk can't be converted to a
+  string, or when the <span data-x="html-insertion-stream-reference-child">reference child</span> is
+  found to have moved (by the <span>adjusted insertion location</span> or when writing). If the
+  parser is running, it stops before its next step (see <a href="#check-parser-halted">the rule for
+  halted parsers</a>), and the stream is cleaned up once it returns, so the parser is never torn
+  down in the middle of a step. Since <code data-x="">abort()</code> waits for a write that is in
+  progress, an abort requested while the parser is running in a write only takes effect once that
+  write's input has been parsed.</p>
+  </div>
+
+  <div algorithm>
+  <p>To <dfn data-x="clean up an HTML insertion stream">clean up</dfn> an <span>HTML insertion
+  stream</span> <var>stream</var>:</p>
+
+  <ol>
+   <li><p>Let <var>parser</var> be <var>stream</var>'s <span
+   data-x="html-insertion-stream-parser">parser</span>.</p></li>
+
+   <li><p>Let <var>document</var> be <var>parser</var>'s <code>Document</code>.</p></li>
+
+   <li><p><span data-x="list iterate">For each</span> <var>element</var> of <var>parser</var>'s
+   <span>stack of open elements</span>: if <var>element</var> is a <code>script</code> element, then
+   set <var>element</var>'s <span>already started</span> to true.</p></li>
+
+   <li><p>Pop all the nodes off <var>parser</var>'s <span>stack of open elements</span>.</p></li>
+
+   <li>
+    <p>If <var>document</var>'s <span>pending parsing-blocking script</span> is non-null:</p>
+
+    <ol>
+     <li><p><span>Unblock rendering</span> on <var>document</var>'s <span>pending parsing-blocking
+     script</span>.</p></li>
+
+     <li><p>Set <var>document</var>'s <span>pending parsing-blocking script</span> to null.</p></li>
+    </ol>
+   </li>
+
+   <li><p><span data-x="list iterate">For each</span> <var>script</var> of <var>document</var>'s
+   <span>list of scripts that will execute when the document has finished parsing</span>:
+   <span>unblock rendering</span> on <var>script</var>.</p></li>
+
+   <li><p><span data-x="list empty">Empty</span> <var>document</var>'s <span>list of scripts that
+   will execute when the document has finished parsing</span>.</p></li>
+  </ol>
+
+  <p class="note">Nodes that were already inserted stay where they are; the partial tree is neither
+  removed nor completed. Popping the <span>stack of open elements</span> lets, for example, an
+  unclosed <code>style</code> element apply. Unclosed <code>script</code> elements, the pending
+  parser-blocking script, and pending <code data-x="attr-script-defer">defer</code> and module
+  scripts never run, not even when they are cloned or inserted elsewhere later.</p>
+  </div>
+
+  <div algorithm>
+  <p>To <dfn data-x="run an HTML insertion stream">run</dfn> an <span>HTML insertion stream</span>
+  <var>stream</var>:</p>
+
+  <ol>
+   <li><p>If <var>stream</var>'s <span data-x="html-insertion-stream-running">running</span> is true
+   or <var>stream</var>'s <span data-x="html-insertion-stream-halted">halted</span> is true, then
+   return.</p></li>
+
+   <li><p>Let <var>parser</var> be <var>stream</var>'s <span
+   data-x="html-insertion-stream-parser">parser</span>.</p></li>
+
+   <li><p>Let <var>document</var> be <var>parser</var>'s <code>Document</code>.</p></li>
+
+   <li><p>Set <var>stream</var>'s <span data-x="html-insertion-stream-running">running</span> to
+   true.</p></li>
+
+   <li>
+    <p>While <var>stream</var>'s <span data-x="html-insertion-stream-halted">halted</span> is
+    false:</p>
+
+    <ol>
+     <li><p>Let <var>script</var> be <var>document</var>'s <span>pending parsing-blocking
+     script</span>.</p></li>
+
+     <li>
+      <p>If <var>script</var> is non-null:</p>
+
+      <ol>
+       <li><p>If <var>script</var>'s <span>ready to be parser-executed</span> is false, then
+       <span>break</span>.</p></li>
+
+       <li><p>Set <var>document</var>'s <span>pending parsing-blocking script</span> to
+       null.</p></li>
+
+       <li><p>Increment <var>parser</var>'s <span>script nesting level</span> by one.</p></li>
+
+       <li><p><span>Execute the script element</span> <var>script</var>.</p></li>
+
+       <li><p>Decrement <var>parser</var>'s <span>script nesting level</span> by one.</p></li>
+
+       <li><p>Set <var>parser</var>'s <span>parser pause flag</span> to false.</p></li>
+      </ol>
+     </li>
+
+     <li>
+      <p>Otherwise:</p>
+
+      <ol>
+       <li><p>Let <var>parser</var> run until it has consumed all the characters in its <span>input
+       stream</span>, or until it yields control because its <span>parser pause flag</span> is true
+       or because it is <span data-x="concept-parser-halted">halted</span>.</p></li>
+
+       <li><p>If <var>document</var>'s <span>pending parsing-blocking script</span> is null, then
+       <span>break</span>.</p></li>
+      </ol>
+     </li>
+    </ol>
+   </li>
+
+   <li><p>Set <var>stream</var>'s <span data-x="html-insertion-stream-running">running</span> to
+   false.</p></li>
+
+   <li>
+    <p>If <var>stream</var>'s <span data-x="html-insertion-stream-halted">halted</span> is true:</p>
+
+    <ol>
+     <li><p><span data-x="clean up an HTML insertion stream">Clean up</span>
+     <var>stream</var>.</p></li>
+
+     <li><p><span data-x="writablestream-error">Error</span> <var>stream</var>'s <span
+     data-x="html-insertion-stream-writable">writable stream</span> given <var>stream</var>'s <span
+     data-x="html-insertion-stream-error">error</span>.</p></li>
+
+     <li><p>Return.</p></li>
+    </ol>
+   </li>
+
+   <li>
+    <p>If <var>document</var>'s <span>pending parsing-blocking script</span> is non-null, then
+    <span>wait for a script to be ready to be parser-executed</span> given <var>document</var>'s
+    <span>pending parsing-blocking script</span> and the following step: <span data-x="run an HTML
+    insertion stream">run</span> <var>stream</var>. Return.</p>
+
+    <p class="note">This is the counterpart of the <span>HTML parser</span> spinning the event loop
+    when it is blocked by a script: the parser stays paused, and the stream runs it again from a
+    task once the script is ready.</p>
+   </li>
+
+   <li>
+    <p>If <var>stream</var>'s <span data-x="html-insertion-stream-close-promise">close
+    promise</span> is non-null:</p>
+
+    <ol>
+     <li><p>Resolve <var>stream</var>'s <span data-x="html-insertion-stream-close-promise">close
+     promise</span> with undefined.</p></li>
+
+     <li><p><span>Run the deferred scripts</span> of <var>stream</var>.</p></li>
+    </ol>
+
+    <p class="note">At this point the parser has consumed the <span>explicit "EOF" character</span>,
+    so it has <span data-x="stop parsing">stopped parsing</span>.</p>
+   </li>
+  </ol>
+
+  <p class="note">When <var>parser</var> runs under a write, a script that it runs has a non-empty
+  <span>JavaScript execution context stack</span> beneath it, so no microtask checkpoint happens
+  between consecutive streamed scripts. When it runs from a task, after a parser-blocking script, a
+  microtask checkpoint happens when each script end tag is processed, as when parsing a
+  document.</p>
+  </div>
+
+  <div algorithm>
+  <p>To <dfn>run the deferred scripts</dfn> of an <span>HTML insertion stream</span>
+  <var>stream</var>:</p>
+
+  <ol>
+   <li><p>Let <var>scripts</var> be <var>stream</var>'s <span
+   data-x="html-insertion-stream-parser">parser</span>'s <code>Document</code>'s <span>list of
+   scripts that will execute when the document has finished parsing</span>.</p></li>
+
+   <li><p>If <var>stream</var>'s <span data-x="html-insertion-stream-halted">halted</span> is true
+   or <var>scripts</var> <span data-x="list is empty">is empty</span>, then return.</p></li>
+
+   <li><p>Let <var>script</var> be <var>scripts</var>[0].</p></li>
+
+   <li>
+    <p><span>Wait for a script to be ready to be parser-executed</span> given <var>script</var> and
+    the following steps:</p>
+
+    <ol>
+     <li><p><span data-x="list remove">Remove</span> <var>script</var> from
+     <var>scripts</var>.</p></li>
+
+     <li><p><span>Execute the script element</span> <var>script</var>.</p></li>
+
+     <li><p><span>Run the deferred scripts</span> of <var>stream</var>.</p></li>
+    </ol>
+   </li>
+  </ol>
+  </div>
+
+  <div algorithm>
+  <p>To <dfn>wait for a script to be ready to be parser-executed</dfn>, given a <code>script</code>
+  element <var>el</var> and steps <var>steps</var>:</p>
+
+  <ol>
+   <li><p>If <var>el</var>'s <span>ready to be parser-executed</span> is true, then <span>queue an
+   element task</span> on the <span>networking task source</span> given <var>el</var> to run
+   <var>steps</var>, and return.</p></li>
+
+   <li>
+    <p>Set <var>el</var>'s <span>steps to run when the result is ready</span> to the following
+    steps:</p>
+
+    <ol>
+     <li><p>Set <var>el</var>'s <span>ready to be parser-executed</span> to true.</p></li>
+
+     <li><p><span>Queue an element task</span> on the <span>networking task source</span> given
+     <var>el</var> to run <var>steps</var>.</p></li>
+    </ol>
+
+    <p class="note">This replaces the steps that <span>prepare the script element</span> set, which
+    only set <var>el</var>'s <span>ready to be parser-executed</span> to true.</p>
+   </li>
+  </ol>
+  </div>
+
+  </div>
+
+
   <h4>HTML serialization methods</h4>
 
   <dl class="domintro">
@@ -127378,10 +128304,11 @@ enum <dfn enum>DOMParserSupportedType</dfn> {
   parser, which a <code>Document</code> or hostless <code>DocumentFragment</code> cannot provide,
   and they treat a <code>template</code> element as standing for its <span>template contents</span>
   rather than its <span data-x="concept-tree-child">children</span>, so inserting adjacent to the
-  latter is disallowed. Similarly, <span>filter and pre-insert HTML</span> and <span>filter and
-  replace with HTML</span> disallow an <code>html</code> element as the parent, because parsing a
-  fragment with an <code>html</code> context element always produces both a <code>head</code> and a
-  <code>body</code> element, which is only suitable when replacing all children via <code
+  latter is disallowed. Similarly, <span>filter and pre-insert HTML</span>, <span>filter and replace
+  with HTML</span>, and <span data-x="stream HTML">streaming HTML</span> other than to replace all
+  children disallow an <code>html</code> element as the parent, because parsing a fragment with an
+  <code>html</code> context element always produces both a <code>head</code> and a <code>body</code>
+  element, which is only suitable when replacing all children via <code
   data-x="dom-Element-setHTML">setHTML()</code> or <code
   data-x="dom-Element-setHTMLUnsafe">setHTMLUnsafe()</code>. Additionally, while legacy methods such
   as <code data-x="dom-Element-outerHTML">outerHTML</code> and <code
@@ -142600,11 +143527,13 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
   the input stream. Initially, the insertion point is undefined.</p>
 
   <p>The "EOF" character in the tables below is a conceptual character representing the end of the
-  <span>input stream</span>. If the parser is a <span>script-created parser</span>, then the end of
-  the <span>input stream</span> is reached when an <dfn>explicit "EOF" character</dfn> (inserted by
-  the <code data-x="dom-document-close">document.close()</code> method) is consumed. Otherwise, the
-  "EOF" character is not a real character in the stream, but rather the lack of any further
-  characters.</p>
+  <span>input stream</span>. If the parser is a <span>script-created parser</span>, or its <span
+  data-x="concept-parser-stream">stream</span> is non-null, then the end of the <span>input
+  stream</span> is reached when an <dfn>explicit "EOF" character</dfn> (inserted by the <code
+  data-x="dom-document-close">document.close()</code> method, or when an <span>HTML insertion
+  stream</span> is <span data-x="close an HTML insertion stream">closed</span>) is consumed.
+  Otherwise, the "EOF" character is not a real character in the stream, but rather the lack of any
+  further characters.</p>
 
   </div>
 
@@ -143102,11 +144031,14 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
    <dt><dfn data-x="scripting-mode-normal">Normal</dfn></dt>
    <dd>Scripts are processed when inserted, respecting <code data-x="attr-script-async">async</code>
    and <code data-x="attr-script-defer">defer</code> attributes and blocking the parser when
-   encountering a <span>classic script</span>.</dd>
+   encountering a <span>classic script</span>. This mode is also used by the <code
+   data-x="">Unsafe</code> <span>HTML streaming methods</span> when <code
+   data-x="dom-SetHTMLUnsafeOptions-runScripts">runScripts</code> is true.</dd>
 
    <dt><dfn data-x="scripting-mode-disabled">Disabled</dfn></dt>
-   <dd>Scripts are disabled, and the <code>noscript</code> element can represent fallback
-   content.</dd>
+   <dd>Scripts are disabled, and the <code>noscript</code> element can represent fallback content.
+   In the <span>fragment case</span>, scripts are also marked as <span>already started</span>, as
+   in the <span data-x="scripting-mode-inert">Inert</span> mode.</dd>
 
    <dt><dfn data-x="scripting-mode-inert">Inert</dfn></dt>
    <dd>Scripts are enabled, however they are marked as <span>already started</span>, essentially
@@ -143139,7 +144071,14 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
 
   <p>The <dfn>insertion target redirection map</dfn> (an <span>ordered map</span> whose <span
   data-x="map key">keys</span> are elements and whose <span data-x="map value">values</span> are
-  <span data-x="insertion location">insertion locations</span>, initially empty).</p>
+  <span data-x="insertion location">insertion locations</span> or null, initially empty). A null
+  value means that nodes that would be inserted into that element are dropped.</p>
+
+  <p>An <span>HTML insertion stream</span>-or-null <dfn data-x="concept-parser-stream">stream</dfn>,
+  initially null. It is non-null for parsers created by the <span>HTML streaming methods</span>. An
+  <span>HTML parser</span> is <dfn data-x="concept-parser-halted">halted</dfn> if its <span
+  data-x="concept-parser-stream">stream</span> is non-null and that stream's <span
+  data-x="html-insertion-stream-halted">halted</span> is true.</p>
 
   <p class="note">When an element is removed or replaced with its children as part of sanitization
   during parsing, text inserted immediately before and after that element coalesces into a single
@@ -143246,6 +144185,26 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
   <p id="check-parser-pause-flag">Before each step of the tokenizer, the user agent must first check
   the <span>parser pause flag</span>. If it is true, then the tokenizer must abort the processing of
   any nested invocations of the tokenizer, yielding control back to the caller.</p>
+  </div>
+
+  <div algorithm>
+  <p id="check-parser-halted">Similarly, before each step of the tokenizer, and before each step of
+  the <span>tree construction</span> stage (including the steps of the algorithms in this section
+  that it invokes), the user agent must check whether the parser is <span
+  data-x="concept-parser-halted">halted</span>. If it is, then the user agent must abandon the
+  processing of the current token and abort the processing of any nested invocations of the
+  tokenizer, yielding control back to the caller. The parser is not used again.</p>
+
+  <p class="note">A parser can only become <span data-x="concept-parser-halted">halted</span> while
+  it is running when script runs during a step (e.g., a <span data-x="concept-custom-element-reaction">custom
+  element reaction</span> after an element is inserted, a microtask checkpoint, or a
+  <code>script</code> being executed) or when the <span>adjusted insertion location</span> finds
+  that an <span>HTML insertion stream</span>'s <span
+  data-x="html-insertion-stream-reference-child">reference child</span> has been moved. The rule
+  above means that, from then on, the parser makes no further changes to the DOM: the rest of the
+  current token is not processed, and no further input is consumed. Algorithms invoked by those
+  steps that are defined outside this section, such as <span data-x="concept-node-insert">inserting
+  a node</span>, still run to completion.</p>
   </div>
 
   <p>The tokenizer state machine consists of the states defined in the following subsections.</p>
@@ -146032,18 +146991,14 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
    attributes.</p></li>
 
    <li>
-    <p>Otherwise, if the parser's <span>parser sanitizer configuration</span> is null, optionally
-    <span>create a speculative mock element</span> given <var>namespace</var>, <var>token</var>'s
-    tag name, and <var>token</var>'s attributes.</p>
+    <p>Let <var>location</var> be the <span>adjusted insertion location</span> given
+    (<var>intendedParent</var>, null).</p>
 
-    <p class="note">The result is not used. This step allows for a <span>speculative fetch</span> to
-    be initiated from non-speculative parsing. The fetch is still speculative at this point,
-    because, for example, by the time the element is inserted, <var>intendedParent</var> might have
-    been removed from the document. No speculative fetches are started when sanitizing, since the
-    element or its ancestors might be removed by the sanitizer.</p>
+    <p class="note">This is where the element will be inserted, taking the <span>insertion target
+    redirection map</span> into account. Computing it can <span
+    data-x="concept-parser-halted">halt</span> the parser, in which case no element is
+    created.</p>
    </li>
-
-   <li><p>Let <var>document</var> be <var>intendedParent</var>'s <span>node document</span>.</li>
 
    <li><p>Let <var>localName</var> be <var>token</var>'s tag name.</p></li>
 
@@ -146053,10 +147008,40 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
    <li><p>Let <var>sanitizerAction</var> be "<span
    data-x="sanitizer-action-keep">Keep</span>".</p></li>
 
-   <li><p>If <var>sanitizerConfig</var> is not null, then set <var>sanitizerAction</var> to the
-   result of <span data-x="get the sanitizer action for an element name">getting the sanitizer
-   action for an element name</span> given <var>localName</var>, <var>namespace</var>, and
+   <li><p>If <var>location</var> is null, then set <var>sanitizerAction</var> to "<span
+   data-x="sanitizer-action-remove">Remove</span>".</p></li>
+
+   <li><p>Otherwise, if <var>sanitizerConfig</var> is not null, then set <var>sanitizerAction</var>
+   to the result of <span data-x="get the sanitizer action for an element name">getting the
+   sanitizer action for an element name</span> given <var>localName</var>, <var>namespace</var>, and
    <var>sanitizerConfig</var>.</p></li>
+
+   <li>
+    <p>If <var>sanitizerConfig</var> is null and <var>location</var> is non-null, then optionally
+    <span>create a speculative mock element</span> given <var>namespace</var>, <var>localName</var>,
+    and <var>token</var>'s attributes.</p>
+
+    <p class="note">The result is not used. This step allows for a <span>speculative fetch</span> to
+    be initiated from non-speculative parsing. The fetch is still speculative at this point,
+    because, for example, by the time the element is inserted, <var>intendedParent</var> might have
+    been removed from the document. No speculative fetches are started when sanitizing, since the
+    element or its ancestors might be removed by the sanitizer, or for elements that are
+    dropped.</p>
+   </li>
+
+   <li>
+    <p>Let <var>document</var> be the parser's <code>Document</code> if <var>sanitizerAction</var>
+    is not "<span data-x="sanitizer-action-keep">Keep</span>"; otherwise <var>location</var>'s
+    <span data-x="insertion-location-target-parent">target parent</span>'s <span>node
+    document</span>.</p>
+
+    <p class="note">Elements that are not going to be inserted (because the sanitizer removes them
+    or replaces them with their children, or because they are dropped) are created in the parser's
+    <code>Document</code>, which in the <span>fragment case</span> is an inert document without a
+    <span data-x="concept-document-bc">browsing context</span>, so that creating them has no side
+    effects such as starting a fetch. Other elements are created directly in the document they will
+    be inserted into.</p>
+   </li>
 
    <li><p>Let <var>is</var> be the value of the "<code data-x="attr-is">is</code>" attribute in
    <var>token</var>, if such an attribute exists; otherwise null.</p></li>
@@ -146066,22 +147051,50 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
    data-x="attr-is">is</code>", null, <var>is</var>, <var>localName</var>, <var>namespace</var>,
    and <var>sanitizerConfig</var> is false, then set <var>is</var> to null.</p></li>
 
-   <li><p>Let <var>registry</var> be the result of <span data-x="look up a custom element
-   registry">looking up a custom element registry</span> given <var>intendedParent</var>.</p></li>
+   <li><p>Let <var>registry</var> be null.</p></li>
+
+   <li>
+    <p>If <var>location</var> is non-null:</p>
+
+    <ol>
+     <li><p>Let <var>insertionParent</var> be <var>location</var>'s <span
+     data-x="insertion-location-target-parent">target parent</span>.</p></li>
+
+     <li><p>If <var>insertionParent</var> is a <code>DocumentFragment</code> node that is not a
+     <span>shadow root</span>, then set <var>registry</var> to the result of <span data-x="look up a
+     custom element registry">looking up a custom element registry</span> given
+     <var>intendedParent</var>.</p></li>
+
+     <li><p>Otherwise, set <var>registry</var> to the result of <span data-x="look up a custom
+     element registry">looking up a custom element registry</span> given
+     <var>insertionParent</var>.</p></li>
+    </ol>
+
+    <p class="note">The registry is looked up when the element is created, from where it will be
+    inserted, so that it reflects, for example, the target of an <span>HTML insertion stream</span>
+    having been <span data-x="concept-node-adopt">adopted</span> into another document. A
+    <code>DocumentFragment</code> that is not a <span>shadow root</span> has no registry of its own;
+    when the parser inserts into one (the fragment created by <span>create an HTML fragment
+    parser</span>, or <span>template contents</span>), the registry is looked up from the element
+    the parser is inserting into instead, which is the root <code>html</code> element (created with
+    the registry of the fragment's target) or an element that is <span
+    data-x="dom-SanitizerConfig-replaceWithChildrenElements">replaced with its
+    children</span>.</p>
+   </li>
 
    <li>
     <p>Let <var>creationRegistry</var> be <var>registry</var> if <var>sanitizerAction</var> is
     "<span data-x="sanitizer-action-keep">Keep</span>"; otherwise null.</p>
 
-    <p class="note">Elements that the sanitizer will remove or replace with their children are
-    created with a null <span data-x="element-custom-element-registry">custom element
-    registry</span>, so <span data-x="create an element">creating an element</span> finds no
-    <span>custom element definition</span> and no <span>custom element constructor</span> runs for
-    them. Removed elements keep the null registry, so their descendants, which look up their
-    registry from them, don't run constructors either. Replaced elements have their registry set to
-    <var>registry</var> after creation so that their children inherit it. Likewise, an <code
-    data-x="attr-is">is</code> attribute that the sanitizer will remove does not create a
-    <span>customized built-in element</span>.</p>
+    <p class="note">Elements that the sanitizer will remove or replace with their children, and
+    elements that are dropped, are created with a null <span
+    data-x="element-custom-element-registry">custom element registry</span>, so <span
+    data-x="create an element">creating an element</span> finds no <span>custom element
+    definition</span> and no <span>custom element constructor</span> runs for them. Removed and
+    dropped elements keep the null registry, so their descendants, which look up their registry
+    from them, don't run constructors either. Replaced elements have their registry set to
+    <var>registry</var> after creation. Likewise, an <code data-x="attr-is">is</code> attribute that
+    the sanitizer will remove does not create a <span>customized built-in element</span>.</p>
    </li>
 
    <li><p>Let <var>definition</var> be null if <var>sanitizerAction</var> is not "<span
@@ -146210,7 +147223,8 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
 
   <div algorithm>
   <p>To compute the <dfn>adjusted insertion location</dfn> with an optional <span>insertion
-  location</span> <var>insertionLocation</var> (default null):</p>
+  location</span> <var>insertionLocation</var> (default null), perform the following steps. They
+  return an <span>insertion location</span> or null.</p>
 
   <ol>
    <li><p>Let <var>location</var> be <var>insertionLocation</var> if <var>insertionLocation</var> is
@@ -146224,16 +147238,49 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
    <li><p><span>Assert</span>: <var>refChild</var> is null.</p></li>
 
    <li>
-    <p>Return the parser's <span>insertion target redirection
+    <p>Let <var>redirected</var> be the parser's <span>insertion target redirection
     map</span>[<var>targetParent</var>].</p>
 
     <p class="note">The <span>insertion target redirection map</span> redirects insertions into the
-    root <code>html</code> element to the <code>DocumentFragment</code> created by the <span>HTML
-    fragment parsing algorithm</span>, and insertions into elements that are <span
+    root <code>html</code> element created by <span>create an HTML fragment parser</span> to where
+    the fragment's top-level nodes go (a new <code>DocumentFragment</code>, or, for an <span>HTML
+    insertion stream</span>, its target), and insertions into elements that are <span
     data-x="dom-SanitizerConfig-replaceWithChildrenElements">replaced with children</span> as part
     of <span data-x="sanitize">sanitization</span> to where those elements would have been
     inserted.</p>
    </li>
+
+   <li><p>If <var>redirected</var> is null, then return null.</p></li>
+
+   <li><p>Let (<var>redirectedParent</var>, <var>redirectedChild</var>) be
+   <var>redirected</var>.</p></li>
+
+   <li>
+    <p>If <var>redirectedChild</var> is non-null and its <span>parent</span> is not
+    <var>redirectedParent</var>:</p>
+
+    <ol>
+     <li><p>If the parser's <span data-x="concept-parser-stream">stream</span> is non-null and
+     <var>redirectedChild</var> is its <span
+     data-x="html-insertion-stream-reference-child">reference child</span>, then <span
+     data-x="halt an HTML insertion stream">halt</span> the parser's <span
+     data-x="concept-parser-stream">stream</span> given a new
+     <span>"<code>HierarchyRequestError</code>"</span> <code>DOMException</code> created in the
+     stream's <span data-x="html-insertion-stream-writable">writable stream</span>'s <span data-x="concept-relevant-realm">relevant
+     realm</span>.</p></li>
+
+     <li><p>Return null.</p></li>
+    </ol>
+
+    <p class="note">A stored <span data-x="insertion-location-reference-child">reference child</span> can only stop being a child of its
+    stored parent if script moves it while the parser is running. If it is the <span>HTML insertion
+    stream</span>'s own <span data-x="html-insertion-stream-reference-child">reference
+    child</span>, the stream errors. Otherwise (a <code>table</code> before which an element that is
+    <span data-x="dom-SanitizerConfig-replaceWithChildrenElements">replaced with its
+    children</span> was foster parented), the nodes that would be inserted there are dropped.</p>
+   </li>
+
+   <li><p>Return <var>redirected</var>.</p></li>
   </ol>
   </div>
 
@@ -146245,8 +147292,12 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
   (default null), and an optional boolean <var>alreadySanitized</var> (default false):</p>
 
   <ol>
-   <li><p>Let (<var>targetParent</var>, <var>referenceChild</var>) be the <span>adjusted insertion
-   location</span> given <var>overrideLocation</var>.</p></li>
+   <li><p>Let <var>location</var> be the <span>adjusted insertion location</span> given
+   <var>overrideLocation</var>.</p></li>
+
+   <li><p>If <var>location</var> is null, then return.</p></li>
+
+   <li><p>Let (<var>targetParent</var>, <var>referenceChild</var>) be <var>location</var>.</p></li>
 
    <li>
     <p>If any of the following are true:</p>
@@ -146320,16 +147371,29 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
    <li><p><span>Assert</span>: <span>ensure pre-insert validity</span> given <var>element</var>,
    <var>targetParent</var>, <var>referenceChild</var>, and « » does not throw.</p></li>
 
-   <li><p>If the parser's <span>fragment context element</span> is null, then push a new
-   <span>element queue</span> onto <var>element</var>'s <span>relevant agent</span>'s <span>custom
-   element reactions stack</span>.</p></li>
+   <li><p>Let <var>reactionsNow</var> be true if the parser's <span>fragment context element</span>
+   is null or the parser's <span data-x="concept-parser-stream">stream</span> is non-null;
+   otherwise false.</p></li>
+
+   <li><p>If <var>reactionsNow</var> is true, then push a new <span>element queue</span> onto
+   <var>element</var>'s <span>relevant agent</span>'s <span>custom element reactions
+   stack</span>.</p></li>
 
    <li><p><span data-x="concept-node-insert">Insert</span> <var>element</var> into
    <var>targetParent</var> before <var>referenceChild</var>.</p></li>
 
-   <li><p>If the parser's <span>fragment context element</span> is null, then pop the <span>element
-   queue</span> from <var>element</var>'s <span>relevant agent</span>'s <span>custom element
-   reactions stack</span>, and <span>invoke custom element reactions</span> in that queue.</p></li>
+   <li>
+    <p>If <var>reactionsNow</var> is true, then pop the <span>element queue</span> from
+    <var>element</var>'s <span>relevant agent</span>'s <span>custom element reactions stack</span>,
+    and <span>invoke custom element reactions</span> in that queue.</p>
+
+    <p class="note">For the document parser and for an <span>HTML insertion stream</span>, this
+    runs reactions caused by inserting <var>element</var> (such as an upgrade or <code
+    data-x="">connectedCallback</code>) right away, before the parser processes the next token.
+    Other parser-driven reactions, such as those for nodes moved by the <span>adoption agency
+    algorithm</span>, use the <span>backup element queue</span>. This doesn't depend on how the
+    input of an <span>HTML insertion stream</span> is split into chunks.</p>
+   </li>
   </ol>
   </div>
 
@@ -146486,8 +147550,11 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
    <li><p>Let <var>data</var> be the characters passed to the algorithm, or, if no characters were
    explicitly specified, the character of the character token being processed.</p></li>
 
-   <li><p>Let (<var>targetParent</var>, <var>referenceChild</var>) be the <span>adjusted insertion
-   location</span>.</p></li>
+   <li><p>Let <var>location</var> be the <span>adjusted insertion location</span>.</p></li>
+
+   <li><p>If <var>location</var> is null, then return.</p></li>
+
+   <li><p>Let (<var>targetParent</var>, <var>referenceChild</var>) be <var>location</var>.</p></li>
 
    <li>
     <p>If <var>targetParent</var> is a <code>Document</code> node, then return.</p>
@@ -146569,8 +147636,12 @@ document.body.appendChild(text);
    <li><p>Let <var>data</var> be the data given in the comment token being
    processed.</p></li>
 
-   <li><p>Let (<var>targetParent</var>, <var>referenceChild</var>) be the <span>adjusted insertion
-   location</span> given <var>insertionLocation</var>.</p></li>
+   <li><p>Let <var>location</var> be the <span>adjusted insertion location</span> given
+   <var>insertionLocation</var>.</p></li>
+
+   <li><p>If <var>location</var> is null, then return.</p></li>
+
+   <li><p>Let (<var>targetParent</var>, <var>referenceChild</var>) be <var>location</var>.</p></li>
 
    <li><p>Let <var>comment</var> be the result of <span data-x="create a comment node">creating a
    comment node</span> given <var>targetParent</var>'s <span>node document</span> and
@@ -146598,8 +147669,12 @@ document.body.appendChild(text);
    <li><p>Let <var>data</var> be the data given in the processing instruction token being
    processed.</p></li>
 
-   <li><p>Let (<var>targetParent</var>, <var>referenceChild</var>) be the <span>adjusted insertion
-   location</span> given <var>insertionLocation</var>.</p></li>
+   <li><p>Let <var>location</var> be the <span>adjusted insertion location</span> given
+   <var>insertionLocation</var>.</p></li>
+
+   <li><p>If <var>location</var> is null, then return.</p></li>
+
+   <li><p>Let (<var>targetParent</var>, <var>referenceChild</var>) be <var>location</var>.</p></li>
 
    <li><p>Let <var>pi</var> be the result of <span data-x="create a processing instruction
    node">creating a processing instruction node</span> given <var>targetParent</var>'s <span>node
@@ -147092,13 +148167,20 @@ document.body.appendChild(text);
        <p>Setting <span data-x="script-force-async">force async</span> to false ensures that, if the
        script is external, any <code data-x="dom-document-write">document.write()</code> calls in
        the script will execute in-line, instead of blowing the document away, as would happen in
-       most other cases. It also prevents the script from executing until the end tag is seen.</p>
+       most other cases. It also prevents the script from executing until the end tag is seen. For
+       a parser whose <span data-x="concept-parser-stream">stream</span> is non-null, the
+       <code>Document</code> is the parser's own inert document, and the script executes in the
+       stream's target's document, where <code data-x="dom-document-write">document.write()</code>
+       calls from an external script are ignored and calls from an inline script affect that
+       document's own parser, if any, as for any other script.</p>
       </div>
      </li>
 
      <li><p>If the parser's <span>scripting mode</span> is <span
-     data-x="scripting-mode-inert">Inert</span>, then set the <code>script</code> element's
-     <span>already started</span> to true. (<span>fragment case</span>)</p></li>
+     data-x="scripting-mode-inert">Inert</span>, or is <span
+     data-x="scripting-mode-disabled">Disabled</span> and the parser's <span>fragment context
+     element</span> is non-null, then set the <code>script</code> element's <span>already
+     started</span> to true. (<span>fragment case</span>)</p></li>
 
      <li id="document-written-scripts-intervention"><p>If the parser was invoked via the <code
      data-x="dom-document-write">document.write()</code> or <code
@@ -147293,13 +148375,14 @@ document.body.appendChild(text);
               document</span>'s <span data-x="document-custom-element-registry">custom element
               registry</span>.</p>
 
-              <p class="note">When the parser is sanitizing,
-              <var>declarativeShadowHostElement</var>'s <span>node document</span> is either the
-              inert document created by the <span>HTML fragment parsing algorithm</span> or the new
-              <code>Document</code> passed to <span>parse HTML from a string</span>, and its <span
-              data-x="document-custom-element-registry">custom element registry</span> is null. So
-              no <span>custom element constructor</span> runs for the contents of a shadow root
-              whose host the sanitizer will remove.</p>
+              <p class="note">If the sanitizer will remove
+              <var>declarativeShadowHostElement</var>, it was created in the parser's
+              <code>Document</code>, which has no <span data-x="concept-document-bc">browsing
+              context</span> and whose <span data-x="document-custom-element-registry">custom
+              element registry</span> is null. So no <span>custom element constructor</span> runs
+              for the contents of a shadow root whose host the sanitizer will remove. Otherwise,
+              <var>declarativeShadowHostElement</var> is in the document it is being inserted into,
+              whose registry is used.</p>
              </li>
 
              <li>
@@ -147349,10 +148432,14 @@ document.body.appendChild(text);
           attribute:</p>
 
           <ol>
+           <li><p>Let <var>scopeLocation</var> be the <span>adjusted insertion location</span>
+           given <var>insertionLocation</var>.</p></li>
+
+           <li><p>If <var>scopeLocation</var> is null, then return.</p></li>
+
            <li>
-            <p>Let <var>scope</var> be the <span data-x="insertion-location-target-parent">target
-            parent</span> of the <span>adjusted insertion location</span> given
-            <var>insertionLocation</var>.</p>
+            <p>Let <var>scope</var> be <var>scopeLocation</var>'s <span
+            data-x="insertion-location-target-parent">target parent</span>.</p>
 
             <p class="note">In the <span>fragment case</span>, <var>scope</var> can be the
             <code>DocumentFragment</code> into which nodes are being inserted.</p>
@@ -147367,11 +148454,16 @@ document.body.appendChild(text);
            </li>
 
            <li>
-            <p>If <var>scope</var> is <span>the body element</span> of its <span>node
-            document</span>, then set <var>scope</var> to its <span>parent</span>.</p>
+            <p>If <var>scope</var> is <var>insertionLocation</var>'s <span
+            data-x="insertion-location-target-parent">target parent</span> and is <span>the body
+            element</span> of its <span>node document</span>, then set <var>scope</var> to its
+            <span>parent</span>.</p>
 
             <p class="note">This is to support patching <code>head</code> with a
-            <code>template</code> inside <code>body</code>.</p>
+            <code>template</code> inside <code>body</code>. It only applies to a <code>body</code>
+            element that the parser itself is inserting into, not to one that an <span>HTML
+            insertion stream</span> targets, so that streaming into <code>body</code> cannot patch
+            <code>head</code>.</p>
            </li>
 
            <li><p>Let <var>success</var> be the result of <span data-x="prepare content
@@ -148977,12 +150069,15 @@ document.body.appendChild(text);
      <li><p>Let <var>insertionLocation</var> be the <span>appropriate place for inserting a
      node</span> given <var>commonAncestor</var>.</p></li>
 
-     <li><p>Let (<var>target</var>, <var>refNode</var>) be the <span>adjusted insertion
-     location</span> given <var>insertionLocation</var>.</p></li>
+     <li><p>Let <var>adjustedLocation</var> be the <span>adjusted insertion location</span> given
+     <var>insertionLocation</var>.</p></li>
 
      <li><p><span data-x="list iterate">For each</span> <var>replacedElement</var> of
      <var>pendingRedirects</var>: set the parser's <span>insertion target redirection
-     map</span>[<var>replacedElement</var>] to (<var>target</var>, <var>refNode</var>).</p></li>
+     map</span>[<var>replacedElement</var>] to <var>adjustedLocation</var>.</p></li>
+
+     <li><p>Let (<var>target</var>, <var>refNode</var>) be <var>adjustedLocation</var> if
+     <var>adjustedLocation</var> is non-null; otherwise (null, null).</p></li>
 
      <li><p>If <var>lastNode</var> is non-null and <var>lastNode</var>'s
      <span>parent</span> is non-null, then <span data-x="concept-node-remove">remove</span>
@@ -149000,6 +150095,8 @@ document.body.appendChild(text);
        <li><var>lastNode</var> is non-null;</li>
 
        <li><var>lastNode</var>'s <span>parent</span> is null;</li>
+
+       <li><var>target</var> is non-null;</li>
 
        <li><var>lastNode</var> is not a <span>host-including inclusive ancestor</span> of
        <var>target</var>;</li>
@@ -149059,14 +150156,32 @@ document.body.appendChild(text);
        <dt>"<span data-x="sanitizer-action-keep">Keep</span>"</dt>
        <dd>
         <ol>
-         <li><p>Take all of the child nodes of <var>furthestBlock</var> and <span
-         data-x="concept-node-append">append</span> them to <var>newElement</var>.</p></li>
+         <li><p>Let <var>newElementLocation</var> be the <span>adjusted insertion location</span>
+         given (<var>furthestBlock</var>, null).</p></li>
 
-         <li><p>Let (<var>newElementParent</var>, <var>newElementRefNode</var>) be the
-         <span>adjusted insertion location</span> given (<var>furthestBlock</var>, null).</p></li>
+         <li>
+          <p>If <var>newElementLocation</var> is non-null and its <span
+          data-x="insertion-location-target-parent">target parent</span> is not a
+          <code>Document</code> node that has an element child:</p>
 
-         <li><p><span data-x="concept-node-insert">Insert</span> <var>newElement</var> into
-         <var>newElementParent</var> before <var>newElementRefNode</var>.</p></li>
+          <ol>
+           <li><p>Take all of the child nodes of <var>furthestBlock</var> and <span
+           data-x="concept-node-append">append</span> them to <var>newElement</var>.</p></li>
+
+           <li><p>Let (<var>newElementParent</var>, <var>newElementRefNode</var>) be
+           <var>newElementLocation</var>.</p></li>
+
+           <li><p><span data-x="concept-node-insert">Insert</span> <var>newElement</var> into
+           <var>newElementParent</var> before <var>newElementRefNode</var>.</p></li>
+          </ol>
+
+          <p class="note">Otherwise, <var>newElement</var> is dropped, and <var>furthestBlock</var>
+          keeps its children. <var>furthestBlock</var> can only be redirected to a
+          <code>Document</code> if it is <span
+          data-x="dom-SanitizerConfig-replaceWithChildrenElements">replaced with its
+          children</span> and was foster parented before a <code>table</code> that script then made
+          the <span>document element</span>.</p>
+         </li>
         </ol>
        </dd>
       </dl>
@@ -149126,7 +150241,6 @@ document.body.appendChild(text);
 
    <dt>An end-of-file token</dt>
    <dd>
-    <!-- can't be the fragment case -->
     <p><span>Parse error</span>.</p>
 
     <p>If the <span>current node</span> is a <code>script</code> element, then set its <span>already
@@ -149175,15 +150289,21 @@ document.body.appendChild(text);
     <dl class="switch">
 
      <dt>If the <span>script nesting level</span> is not zero:</dt>
+     <dt>If the parser's <span data-x="concept-parser-stream">stream</span> is non-null:</dt>
 
      <dd>
       <p>Set the <span>parser pause flag</span> to true, and abort the processing of any nested
       invocations of the tokenizer, yielding control back to the caller. (Tokenization will resume
-      when the caller returns to the "outer" tree construction stage.)</p>
+      when the caller returns to the "outer" tree construction stage, or, for a parser whose <span
+      data-x="concept-parser-stream">stream</span> is non-null, when the stream <span
+      data-x="run an HTML insertion stream">runs</span> the parser again.)</p>
 
-      <p class="note">The tree construction stage of this particular parser is <a
-      href="#nestedParsing">being called reentrantly</a>, say from a call to <code
-      data-x="dom-document-write">document.write()</code>.</p>
+      <p class="note">If the <span>script nesting level</span> is not zero, the tree construction
+      stage of this particular parser is <a href="#nestedParsing">being called reentrantly</a>, say
+      from a call to <code data-x="dom-document-write">document.write()</code>. A parser whose <span
+      data-x="concept-parser-stream">stream</span> is non-null never spins the event loop; its
+      <span>HTML insertion stream</span> executes the <span>pending parsing-blocking
+      script</span> from a task once it is ready.</p>
      </dd>
 
 
@@ -150587,6 +151707,8 @@ document.body.appendChild(text);
    <dt id="scriptForeignEndTag">An end tag whose tag name is "script", if the <span>current
    node</span> is an <span>SVG <code>script</code></span> element</dt>
    <dd>
+    <p>Let <var>script</var> be the <span>current node</span>.</p>
+
     <p>Pop the <span>current node</span> off the <span>stack of open elements</span>.</p>
 
     <p>Let the <var>old insertion point</var> have the same value as the current
@@ -150596,9 +151718,31 @@ document.body.appendChild(text);
     <p>Increment the parser's <span>script nesting level</span> by one. Set the <span>parser pause
     flag</span> to true.</p>
 
-    <p>If the <span>active speculative HTML parser</span> is null and the user agent supports SVG,
-    then <a href="https://www.w3.org/TR/SVGMobile12/script.html#ScriptContentProcessing">Process the
-    SVG <code data-x="">script</code> element</a> according to the SVG rules. <ref>SVG</ref></p>
+    <p>If all of the following are true:</p>
+
+    <ul>
+     <li><p>the <span>active speculative HTML parser</span> is null;</p></li>
+
+     <li><p>the user agent supports SVG;</p></li>
+
+     <li><p>the parser's <span>scripting mode</span> is <span
+     data-x="scripting-mode-normal">Normal</span>;</p></li>
+
+     <li><p><var>script</var> is <span>connected</span>; and</p></li>
+
+     <li><p><var>script</var>'s <span>node document</span> is the parser's <code>Document</code>'s
+     <span>script execution document</span>,</p></li>
+    </ul>
+
+    <p>then <a href="https://www.w3.org/TR/SVGMobile12/script.html#ScriptContentProcessing">process
+    the SVG <code data-x="">script</code> element</a> <var>script</var> according to the SVG rules.
+    <ref>SVG</ref></p>
+
+    <p class="note">This mirrors the checks that <span>prepare the script element</span> performs
+    for HTML <code>script</code> elements: an SVG <code>script</code> element is not processed if
+    the parser doesn't run scripts, if it was removed from the document (for example, along with
+    an ancestor) or moved to another document before its end tag was parsed, or, for an <span>HTML
+    insertion stream</span>, if it is not in the document the stream was created for.</p>
 
     <p class="note">Even if this causes <span data-x="dom-document-write">new characters to be
     inserted into the tokenizer</span>, the parser will not be executed reentrantly, since the
@@ -150660,6 +151804,16 @@ document.body.appendChild(text);
 
    <li><p>If the <span>active speculative HTML parser</span> is not null, then <span>stop the
    speculative HTML parser</span> and return.</p></li>
+
+   <li>
+    <p>If the parser's <span>fragment context element</span> is non-null, then pop <em>all</em> the
+    nodes off the <span>stack of open elements</span> and return. (<span>fragment case</span>)</p>
+
+    <p class="note">The <code>Document</code> of a parser created by <span>create an HTML fragment
+    parser</span> is never shown to the user, so none of the remaining steps apply to it. In
+    particular, fragment parsing never <span data-x="spin the event loop">spins the event
+    loop</span>. An <span>HTML insertion stream</span> runs its deferred scripts itself.</p>
+   </li>
 
    <li><p>Set the <span>insertion point</span> to undefined.</p></li>
 
@@ -151785,25 +152939,26 @@ console.assert(container.firstChild instanceof SuperP);
   <h3>Parsing HTML fragments</h3>
 
   <div algorithm>
-  <p>The <dfn>HTML fragment parsing algorithm</dfn>, given an <code>Element</code> or
-  <code>DocumentFragment</code> <var>target</var>, a string <var>input</var>, an
-  optional boolean <var>allowDeclarativeShadowRoots</var> (default false), an optional
-  <span>parser scripting mode</span> <var>scriptingMode</var> (default <span
-  data-x="scripting-mode-inert">Inert</span>), and an optional <span>SanitizerConfig</span> or null
-  <var>configuration</var> (default null), is the following steps. They return a
-  <code>DocumentFragment</code>.</p>
+  <p>To <dfn>create an HTML fragment parser</dfn>, given an <code>Element</code> or
+  <code>DocumentFragment</code> <var>target</var>, an <span>insertion location</span> or null
+  <var>topLevelLocation</var>, a boolean <var>allowDeclarativeShadowRoots</var>, a <span>parser
+  scripting mode</span> <var>scriptingMode</var>, and a <span>SanitizerConfig</span> or null
+  <var>configuration</var>, perform the following steps. They return a <span>tuple</span> of an
+  <span>HTML parser</span> and the <code>Node</code> into which the parser inserts top-level
+  nodes.</p>
 
   <p class="note">Parts marked <dfn>fragment case</dfn> in algorithms in the <span>HTML
   parser</span> section are parts that only occur if the parser's <span>fragment context
-  element</span> is non-null. The algorithms have been annotated with such markings for
-  informational purposes only; such markings have no normative weight. If it is possible for a
-  condition described as a <span>fragment case</span> to occur even when the parser's <span>fragment
-  context element</span> is null, then that is an error in the specification.</p>
+  element</span> is non-null, which is the case for every parser created by this algorithm and for
+  no other parser. The algorithms have been annotated with such markings for informational purposes
+  only; such markings have no normative weight. If it is possible for a condition described as a
+  <span>fragment case</span> to occur even when the parser's <span>fragment context element</span>
+  is null, then that is an error in the specification.</p>
 
   <ol>
-   <li><p><span>Assert</span>: <var>scriptingMode</var> is either <span
-   data-x="scripting-mode-inert">Inert</span> or <span
-   data-x="scripting-mode-fragment">Fragment</span>.</p></li>
+   <li><p><span>Assert</span>: <var>scriptingMode</var> is <span
+   data-x="scripting-mode-normal">Normal</span>, <span data-x="scripting-mode-inert">Inert</span>,
+   or <span data-x="scripting-mode-fragment">Fragment</span>.</p></li>
 
    <li><p>Let <dfn data-x="concept-frag-parse-context"><var>context</var></dfn> be
    <var>target</var> if <var>target</var> is an <code>Element</code>; otherwise
@@ -151812,11 +152967,22 @@ console.assert(container.firstChild instanceof SuperP);
    <li><p><span>Assert</span>: <var data-x="concept-frag-parse-context">context</var> is
    non-null.</p></li>
 
-   <li><p>Let <var>document</var> be a <code>Document</code> node whose <span
-   data-x="concept-document-type">type</span> is "<code data-x="">html</code>".</p></li>
-
    <li><p>Let <var>contextDocument</var> be <var
    data-x="concept-frag-parse-context">context</var>'s <span>node document</span>.</p></li>
+
+   <li>
+    <p>Let <var>document</var> be a new <code>Document</code> node whose <span
+    data-x="concept-document-type">type</span> is "<code data-x="">html</code>" and whose
+    <span>script execution document</span> is <var>contextDocument</var>.</p>
+
+    <p class="note"><var>document</var> has no <span data-x="concept-document-bc">browsing
+    context</span>. It holds the parser's root <code>html</code> element, the elements that are not
+    going to be inserted (see <span data-x="create an element for the token">create an element for a token</span>), and, as the <span>parser
+    document</span> of the <code>script</code> elements the parser creates, the parser's <span>pending
+    parsing-blocking script</span> and <span>list of scripts that will execute when the document has
+    finished parsing</span>. Since it never <span>has a style sheet that is blocking
+    scripts</span>, style sheets don't block scripts parsed by this parser.</p>
+   </li>
 
    <li><p>If <var>contextDocument</var> is in <span>quirks mode</span>, then set
    <var>document</var>'s <span data-x="concept-document-mode">mode</span> to "<code
@@ -151830,16 +152996,16 @@ console.assert(container.firstChild instanceof SuperP);
    disabled</span>, then set <var>scriptingMode</var> to <span
    data-x="scripting-mode-disabled">Disabled</span>.</p></li>
 
-   <li><p>Create a new <span>HTML parser</span> whose <span>parser sanitizer configuration</span> is
-   <var>configuration</var>, <span>allow declarative shadow roots</span> is
+   <li><p>Let <var>parser</var> be a new <span>HTML parser</span> whose <span>parser sanitizer
+   configuration</span> is <var>configuration</var>, <span>allow declarative shadow roots</span> is
    <var>allowDeclarativeShadowRoots</var>, <span>scripting mode</span> is
    <var>scriptingMode</var>, and <span>fragment context element</span> is <var
-   data-x="concept-frag-parse-context">context</var>, and associate it with
+   data-x="concept-frag-parse-context">context</var>, associated with
    <var>document</var>.</p></li>
 
    <li>
-    <p>Set the state of the <span>HTML parser</span>'s <span>tokenization</span> stage as
-    follows, switching on <var data-x="concept-frag-parse-context">context</var>:</p>
+    <p>Set the state of <var>parser</var>'s <span>tokenization</span> stage as follows, switching on
+    <var data-x="concept-frag-parse-context">context</var>:</p>
 
     <dl class="switch">
      <dt><code>title</code></dt>
@@ -151857,7 +153023,7 @@ console.assert(container.firstChild instanceof SuperP);
      <dd>Switch the tokenizer to the <span>script data state</span>.</dd>
 
      <dt><code>noscript</code></dt>
-     <dd>If <span>scripting mode</span> is not <span
+     <dd>If <var>parser</var>'s <span>scripting mode</span> is not <span
      data-x="scripting-mode-disabled">Disabled</span>, switch the tokenizer to the <span>RAWTEXT
      state</span>. Otherwise, leave the tokenizer in the <span>data state</span>.</dd>
 
@@ -151884,28 +153050,28 @@ console.assert(container.firstChild instanceof SuperP);
    <li><p><span data-x="concept-node-append">Append</span> <var>root</var> to
    <var>document</var>.</p></li>
 
-   <li><p>Set up the <span>HTML parser</span>'s <span>stack of open elements</span> so that it
-   contains just the single element <var>root</var>.</p></li>
+   <li><p>Set up <var>parser</var>'s <span>stack of open elements</span> so that it contains just
+   the single element <var>root</var>.</p></li>
 
    <li>
-    <p>Let <var>fragment</var> be the result of <span data-x="create a document fragment">creating
-    a document fragment</span> given <var>document</var> if <var>configuration</var> is non-null;
-    otherwise <var>target</var>'s <span>node document</span>.</p>
+    <p>If <var>topLevelLocation</var> is null, then set <var>topLevelLocation</var> to (the result
+    of <span data-x="create a document fragment">creating a document fragment</span> given
+    <var>document</var> if <var>configuration</var> is non-null, or given <var>target</var>'s
+    <span>node document</span> otherwise, null).</p>
 
-    <p class="note">When sanitizing, the <code>DocumentFragment</code> is created as part of the
-    inert <var>document</var>, so that elements that the sanitizer removes are never created in
-    <var>target</var>'s <span>node document</span>, where their creation could have side effects
-    such as starting a fetch. It is <span data-x="concept-node-adopt">adopted</span> into
-    <var>target</var>'s <span>node document</span> after parsing completes.</p>
+    <p class="note">When sanitizing, the new <code>DocumentFragment</code> is created as part of the
+    inert <var>document</var>. The <span>HTML fragment parsing algorithm</span> <span
+    data-x="concept-node-adopt">adopts</span> it into <var>target</var>'s <span>node
+    document</span> after parsing completes.</p>
    </li>
 
-   <li><p>Set the parser's <span>insertion target redirection map</span>[<var>root</var>] to
-   (<var>fragment</var>, null).</p></li>
+   <li><p>Set <var>parser</var>'s <span>insertion target redirection map</span>[<var>root</var>] to
+   <var>topLevelLocation</var>.</p></li>
 
    <li><p>If <var data-x="concept-frag-parse-context">context</var> is a <code>template</code>
-   element, then push "<span data-x="insertion mode: in template">in template</span>" onto the
-   <span>stack of template insertion modes</span> so that it is the new <span>current template
-   insertion mode</span>.</p></li>
+   element, then push "<span data-x="insertion mode: in template">in template</span>" onto
+   <var>parser</var>'s <span>stack of template insertion modes</span> so that it is the new
+   <span>current template insertion mode</span>.</p></li>
 
    <li>
     <p>Create a start tag token whose name is the local name of <var
@@ -151918,26 +153084,49 @@ console.assert(container.firstChild instanceof SuperP);
    </li>
 
    <li>
-    <p><span data-x="reset the insertion mode appropriately">Reset the parser's insertion mode
-    appropriately</span>.</p>
+    <p><span data-x="reset the insertion mode appropriately">Reset <var>parser</var>'s insertion
+    mode appropriately</span>.</p>
 
     <p class="note">The parser will reference its <span>fragment context element</span> as part of
     that algorithm.</p>
    </li>
 
-   <li><p>Set the <span>HTML parser</span>'s <span><code>form</code> element pointer</span> to the
-   nearest node to <var data-x="concept-frag-parse-context">context</var> that is a
-   <code>form</code> element (going straight up the ancestor chain, and including the element
-   itself, if it is a <code>form</code> element), if any. (If there is no such <code>form</code>
-   element, the <span><code>form</code> element pointer</span> keeps its initial value,
-   null.)</p></li>
+   <li><p>Set <var>parser</var>'s <span><code>form</code> element pointer</span> to the nearest node
+   to <var data-x="concept-frag-parse-context">context</var> that is a <code>form</code> element
+   (going straight up the ancestor chain, and including the element itself, if it is a
+   <code>form</code> element), if any. (If there is no such <code>form</code> element, the
+   <span><code>form</code> element pointer</span> keeps its initial value, null.)</p></li>
 
-   <li><p>Place the <var>input</var> into the <span>input stream</span> for the <span>HTML
-   parser</span> just created. The encoding <span
-   data-x="concept-encoding-confidence">confidence</span> is <i>irrelevant</i>.</p></li>
+   <li><p>Return (<var>parser</var>, <var>topLevelLocation</var>'s <span
+   data-x="insertion-location-target-parent">target parent</span>).</p></li>
+  </ol>
+  </div>
 
-   <li><p>Start the <span>HTML parser</span> and let it run until it has consumed all the characters
-   just inserted into the input stream.</p></li>
+  <div algorithm>
+  <p>The <dfn>HTML fragment parsing algorithm</dfn>, given an <code>Element</code> or
+  <code>DocumentFragment</code> <var>target</var>, a string <var>input</var>, an
+  optional boolean <var>allowDeclarativeShadowRoots</var> (default false), an optional
+  <span>parser scripting mode</span> <var>scriptingMode</var> (default <span
+  data-x="scripting-mode-inert">Inert</span>), and an optional <span>SanitizerConfig</span> or null
+  <var>configuration</var> (default null), is the following steps. They return a
+  <code>DocumentFragment</code>.</p>
+
+  <ol>
+   <li><p><span>Assert</span>: <var>scriptingMode</var> is either <span
+   data-x="scripting-mode-inert">Inert</span> or <span
+   data-x="scripting-mode-fragment">Fragment</span>.</p></li>
+
+   <li><p>Let (<var>parser</var>, <var>fragment</var>) be the result of <span data-x="create an HTML
+   fragment parser">creating an HTML fragment parser</span> given <var>target</var>, null,
+   <var>allowDeclarativeShadowRoots</var>, <var>scriptingMode</var>, and
+   <var>configuration</var>.</p></li>
+
+   <li><p>Place the <var>input</var> into the <span>input stream</span> for <var>parser</var>. The
+   encoding <span data-x="concept-encoding-confidence">confidence</span> is
+   <i>irrelevant</i>.</p></li>
+
+   <li><p>Start <var>parser</var> and let it run until it has consumed all the characters just
+   inserted into the input stream.</p></li>
 
    <li><p><span data-x="concept-node-adopt">Adopt</span> <var>fragment</var> into
    <var>target</var>'s <span>node document</span>.</p></li>
@@ -163307,6 +164496,9 @@ INSERT INTERFACES HERE
 
    <dt id="refsSTORAGE">[STORAGE]</dt>
    <dd><cite><a href="https://storage.spec.whatwg.org/">Storage</a></cite>, A. van Kesteren. WHATWG.</dd>
+
+   <dt id="refsSTREAMS">[STREAMS]</dt>
+   <dd><cite><a href="https://streams.spec.whatwg.org/">Streams</a></cite>, A. Rice, D. Denicola, M. Buelens, 吉野剛史 (T. Yoshino). WHATWG.</dd>
 
    <dt id="refsSVG">[SVG]</dt>
    <dd><cite><a href="https://svgwg.org/svg2-draft/">Scalable Vector Graphics (SVG) 2</a></cite>, N Andronikos, R. Atanassov, T. Bah, B. Birtles, B. Brinza, C. Concolato, E. Dahlström, C. Lilley, C. McCormack, D. Schepers, R. Schwerdtfeger, D. Storey, S. Takagi, J. Watt. W3C.</dd>

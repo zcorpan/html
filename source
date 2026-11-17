@@ -31051,8 +31051,9 @@ interface <dfn interface>HTMLSourceElement</dfn> : <span>HTMLElement</span> {
 
     <p class="note">If the <code>img</code> element <span>allows auto-sizes</span>, then the <code
     data-x="attr-source-sizes">sizes</code> attribute can be omitted on previous sibling
-    <code>source</code> elements. In such cases, it is equivalent to specifying <code
-    data-x="valdef-sizes-auto">auto</code>.</p>
+    <code>source</code> elements. In such cases, it is equivalent to specifying the value of the
+    <code>img</code> element's <code data-x="attr-img-sizes">sizes</code> attribute, which starts
+    with <code data-x="valdef-sizes-auto">auto</code>.</p>
 
     <p>The <code>source</code> element supports <span>dimension attributes</span>. The
     <code>img</code> element can use the <code data-x="attr-dim-width">width</code> and <code
@@ -34038,7 +34039,8 @@ was an English &lt;a href="/wiki/Music_hall">music hall&lt;/a> singer, ...</code
      set <var>childSizes</var> to that attribute's value.</p></li>
 
      <li><p>Otherwise, if <var>img</var> <span>allows auto-sizes</span>, then set
-     <var>childSizes</var> to "<code data-x="">auto</code>".</p></li>
+     <var>childSizes</var> to the value of <var>img</var>'s <code
+     data-x="attr-img-sizes">sizes</code> attribute.</p></li>
 
      <li><p>Set <var>source set</var>'s <span>source size</span> to the result of <span
      data-x="parse a sizes attribute">parsing</span> <var>childSizes</var> with

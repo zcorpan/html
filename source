@@ -2801,6 +2801,7 @@ a.setAttribute('href', 'https://example.com/'); // change the content attribute 
 
     <ul class="brief">
      <li><dfn data-x-href="https://w3c.github.io/webappsec-subresource-integrity/#parse-metadata">parse integrity metadata</dfn></li>
+     <li><dfn data-x="do bytes match metadataList" data-x-href="https://w3c.github.io/webappsec-subresource-integrity/#does-response-match-metadatalist">match</dfn></li>
      <li><dfn data-x-href="https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute">the requirements of the integrity attribute</dfn></li>
      <li><dfn data-x-href="https://w3c.github.io/webappsec-subresource-integrity/#get-the-strongest-metadata">get the strongest metadata from set</dfn></li>
      <li><dfn data-x-href="https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy">integrity policy</dfn></li>
@@ -119208,28 +119209,52 @@ document.querySelector("button").addEventListener("click", bound);
      <var>moduleMap</var>[(<var>url</var>, <var>moduleType</var>)].</p></li>
 
      <li>
-      <p>If the result of running <span>match integrity metadata</span> given <var>options</var>'s
-      <span data-x="concept-script-fetch-options-integrity">integrity metadata</span> and
-      <var>existingEntry</var>'s <span data-x="module map entry integrity metadata">integrity
-      metadata</span> is false, then <span>queue a global task</span> on the <span>networking task
-      source</span> given <var>settingsObject</var>'s <span
-      data-x="concept-settings-object-global">global object</span> to run <var>onComplete</var>
-      given null, and return.</p>
+      <p>If <var>existingEntry</var>'s <span data-x="module map entry module script">module
+      script</span> is "<code data-x="">fetching</code>", and the result of <span data-x="parse
+      integrity metadata">parsing</span> <var>options</var>'s <span
+      data-x="concept-script-fetch-options-integrity">integrity metadata</span> is not <span
+      data-x="list is empty">empty</span>, then <span data-x="list append">append</span> the
+      following steps given <var>result</var> to <var>existingEntry</var>'s <span
+      data-x="module map entry on complete callbacks">on complete callbacks</span>, and return:</p>
+
+      <ol>
+       <li><p>If <var>result</var> is null, then <span>fetch a single module script</span> given
+       <var>url</var>, <var>fetchClient</var>, <var>destination</var>, <var>options</var>,
+       <var>settingsObject</var>, <var>referrer</var>, <var>moduleRequest</var> (if given),
+       <var>isTopLevel</var>, <var>onComplete</var>, and <var>performFetch</var> (if given), and
+       return.</p></li>
+
+       <li><p>If <var>existingEntry</var>'s <span data-x="module map entry body">body</span> does
+       not <span data-x="do bytes match metadataList">match</span> <var>options</var>'s <span
+       data-x="concept-script-fetch-options-integrity">integrity metadata</span>, then run
+       <var>onComplete</var> given null, and return.</p></li>
+
+       <li><p>Run <var>onComplete</var> given <var>result</var>.</p></li>
+      </ol>
+
+      <p class="note">A failed fetch is removed from the <span>module map</span>, so if the
+      in-flight fetch fails, this fetches the module again using <var>options</var>'s <span
+      data-x="concept-script-fetch-options-integrity">integrity metadata</span>.</p>
+     </li>
+
+     <li>
+      <p>If <var>existingEntry</var>'s <span data-x="module map entry module script">module
+      script</span> is a <span>module script</span>, and <var>existingEntry</var>'s <span
+      data-x="module map entry body">body</span> does not <span data-x="do bytes match
+      metadataList">match</span> <var>options</var>'s <span
+      data-x="concept-script-fetch-options-integrity">integrity metadata</span>, then <span>queue a
+      global task</span> on the <span>networking task source</span> given
+      <var>settingsObject</var>'s <span data-x="concept-settings-object-global">global
+      object</span> to run <var>onComplete</var> given null, and return.</p>
 
       <p class="note">Running <var>onComplete</var> synchronously would mark a <code>script</code>
       element as ready during <span>prepare the script element</span>, before its <span>steps to run
       when the result is ready</span> are set.</p>
 
-      <p class="note">Unlike <span data-x="consume a preloaded resource"><code>&lt;link
-      rel="preload"></code> cache hits</span>, which ignore preloaded results and trigger a network
-      request on an integrity mismatch, a mismatch in a <span>module map</span> results in a load
-      failure (even when <var>options</var>'s <span
-      data-x="concept-script-fetch-options-integrity">integrity metadata</span> would result in a
-      successful fetch). This is because successfully loaded module scripts cannot be refetched or
-      evicted in the same settings object. Also, a module script with the same URL shouldn't be
-      evaluated multiple times, to avoid unintentional double evaluation just because of different
-      integrity values specified by accident, so the module map isn't keyed by integrity
-      metadata.</p>
+      <p class="note">This checks the existing <span>module script</span>'s response body against
+      the new fetch's integrity metadata, instead of fetching and evaluating the module again. User
+      agents can keep a digest of the body for each hash algorithm they support instead of the body
+      itself.</p>
      </li>
 
      <li>
@@ -119254,11 +119279,10 @@ document.querySelector("button").addEventListener("click", bound);
    </li>
 
    <li><p>Let <var>newEntry</var> be a new <span>module map entry</span> whose <span
-   data-x="module map entry integrity metadata">integrity metadata</span> is <var>options</var>'s
-   <span data-x="concept-script-fetch-options-integrity">integrity metadata</span>, <span
    data-x="module map entry module script">module script</span> is "<code
-   data-x="">fetching</code>", and <span data-x="module map entry on complete callbacks">on complete
-   callbacks</span> is « <var>onComplete</var> ».</p></li>
+   data-x="">fetching</code>", <span data-x="module map entry body">body</span> is null, and <span
+   data-x="module map entry on complete callbacks">on complete callbacks</span> is «
+   <var>onComplete</var> ».</p></li>
 
    <li><p><span data-x="map set">Set</span> <var>moduleMap</var>[(<var>url</var>,
    <var>moduleType</var>)] to <var>newEntry</var>.</p></li>
@@ -119385,7 +119409,8 @@ document.querySelector("button").addEventListener("click", bound);
       <p>If <var>moduleScript</var> is null, then <span data-x="map remove">remove</span>
       <var>moduleMap</var>[(<var>url</var>, <var>moduleType</var>)]; otherwise set
       <var>newEntry</var>'s <span data-x="module map entry module script">module script</span> to
-      <var>moduleScript</var> and set <var>newEntry</var>'s <span
+      <var>moduleScript</var>, set <var>newEntry</var>'s <span data-x="module map entry
+      body">body</span> to <var>bodyBytes</var>, and set <var>newEntry</var>'s <span
       data-x="module map entry on complete callbacks">on complete callbacks</span> to « ».</p>
 
       <p class="note">It is intentional that the <span>module map</span> is keyed by the <span
@@ -122365,11 +122390,12 @@ dictionary <dfn dictionary>PromiseRejectionEventInit</dfn> : <span>EventInit</sp
   data-x="struct item">items</span>:</p>
 
   <dl>
-   <dt><dfn data-x="module map entry integrity metadata">integrity metadata</dfn>
-   <dd>A string
-
    <dt><dfn data-x="module map entry module script">module script</dfn>
    <dd>Either "<code data-x="">fetching</code>" or a <span>module script</span>
+
+   <dt><dfn data-x="module map entry body">body</dfn>
+   <dd>Null or a <span>byte sequence</span>, the response body that <span data-x="module map entry
+   module script">module script</span> was created from
 
    <dt><dfn data-x="module map entry on complete callbacks">on complete callbacks</dfn>
    <dd>A <span>list</span> of algorithms, each accepting null (on failure) or a <span>module
@@ -122460,57 +122486,14 @@ import "https://example.com/foo/../module2.mjs";</code></pre>
 
   <div class="example">
    <p>Because <span data-x="module map">module maps</span> are not keyed by <span
-   data-x="concept-script-fetch-options-integrity">integrity metadata</span>, once a module script
-   is in the <span>module map</span>, any later fetch of the same module with integrity metadata has
-   to match the integrity metadata of the existing entry (or the new fetch has to specify no
-   integrity metadata). If the module was initially fetched without integrity metadata, a subsequent
-   fetch specifying an <code data-x="attr-script-integrity">integrity</code> attribute will fail,
-   even if the resource's contents match the cryptographic hash.</p>
+   data-x="concept-script-fetch-options-integrity">integrity metadata</span>, a module is fetched
+   and evaluated only once even if its <code data-x="attr-script-integrity">integrity</code>
+   attributes differ. A later <code data-x="attr-script-integrity">integrity</code> attribute is
+   checked against the response that was already fetched, so in the following example the script
+   runs once, and only if <code data-x="">foo.js</code> matches the hash:</p>
 
-   <p>In the following example, the <code data-x="rel-modulepreload">modulepreload</code>
-   <code>link</code> element preloads a module script without an <code
-   data-x="attr-link-integrity">integrity</code> attribute. The subsequent <code>script</code>
-   element specifies an <code data-x="attr-script-integrity">integrity</code> attribute and fails to
-   load, because the module script was already entered into the <span>module map</span> with empty
-   integrity metadata:</p>
-
-   <pre class="bad"><code class="html">&lt;!-- This will cause the script to fail to load! -->
-&lt;link rel="modulepreload" href="foo.js">
-&lt;script type="module" src="foo.js" integrity="sha256-(correct hash)">&lt;/script></code></pre>
-
-   <p>Similarly, if a module script is loaded by a <code>script</code> element without an <code
-   data-x="attr-script-integrity">integrity</code> attribute, a subsequent <code>script</code>
-   element for the same module specifying an <code data-x="attr-script-integrity">integrity</code>
-   attribute will also fail to load:</p>
-
-   <pre class="bad"><code class="html">&lt;!-- This will cause the second script to fail to load! -->
-&lt;script type="module" src="foo.js">&lt;/script>
-&lt;script type="module" src="foo.js" integrity="sha256-(correct hash)">&lt;/script></code></pre>
-
-   <p>While failing a script load that would otherwise succeed in the absence of a preceding <code
-   data-x="rel-modulepreload">modulepreload</code> <code>link</code> element or <code>script</code>
-   element with mismatching integrity metadata is unfortunate, attempting to make such scripts load
-   successfully would result in evaluating <code data-x="">foo.js</code> multiple times (for
-   example, by keying <span data-x="module map">module maps</span> by <span
-   data-x="concept-script-fetch-options-integrity">integrity metadata</span>). Double evaluation
-   would likely be far more problematic and unexpected, given that mismatching integrity metadata is
-   much more likely to be an unintentional mistake than an intent to evaluate the same script
-   twice.</p>
-
-   <p>To avoid this failure, all <code data-x="">&lt;link rel="modulepreload"></code> and <code
-   data-x="">&lt;script type="module"></code> elements should have the same <code
-   data-x="">integrity</code> attribute values for the same URL:</p>
-
-   <pre><code class="html">&lt;link rel="modulepreload" href="foo.js" integrity="sha256-(correct hash)">
-&lt;script type="module" src="foo.js" integrity="sha256-(correct hash)">&lt;/script></code></pre>
-
-   <p>Alternatively, subsequent elements can omit the <code
-   data-x="attr-script-integrity">integrity</code> attribute if an integrity check is not
-   needed:</p>
-
-   <pre><code class="html">&lt;!-- The script successfully reuses the modulepreload result. -->
-&lt;link rel="modulepreload" href="foo.js" integrity="sha256-(correct hash)">
-&lt;script type="module" src="foo.js">&lt;/script></code></pre>
+   <pre><code class="html">&lt;link rel="modulepreload" href="foo.js">
+&lt;script type="module" src="foo.js" integrity="sha256-(hash)">&lt;/script></code></pre>
   </div>
 
   <div w-nodev>

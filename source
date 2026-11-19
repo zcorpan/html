@@ -119211,10 +119211,36 @@ document.querySelector("button").addEventListener("click", bound);
       <p>If the result of running <span>match integrity metadata</span> given <var>options</var>'s
       <span data-x="concept-script-fetch-options-integrity">integrity metadata</span> and
       <var>existingEntry</var>'s <span data-x="module map entry integrity metadata">integrity
-      metadata</span> is false, then <span>queue a global task</span> on the <span>networking task
-      source</span> given <var>settingsObject</var>'s <span
-      data-x="concept-settings-object-global">global object</span> to run <var>onComplete</var>
-      given null, and return.</p>
+      metadata</span> is false:</p>
+
+      <ol>
+       <li>
+        <p>If <var>existingEntry</var>'s <span data-x="module map entry module script">module
+        script</span> is "<code data-x="">fetching</code>", then <span data-x="list
+        append">append</span> the following steps given <var>result</var> to
+        <var>existingEntry</var>'s <span data-x="module map entry on complete callbacks">on complete
+        callbacks</span>, and return:</p>
+
+        <ol>
+         <li><p>If <var>result</var> is null, then <span>fetch a single module script</span> given
+         <var>url</var>, <var>fetchClient</var>, <var>destination</var>, <var>options</var>,
+         <var>settingsObject</var>, <var>referrer</var>, <var>moduleRequest</var> (if given),
+         <var>isTopLevel</var>, <var>onComplete</var>, and <var>performFetch</var> (if given), and
+         return.</p></li>
+
+         <li><p>Run <var>onComplete</var> given null.</p></li>
+        </ol>
+
+        <p class="note">A failed fetch is removed from the <span>module map</span>, so if the
+        in-flight fetch fails, this fetches the module again using <var>options</var>'s <span
+        data-x="concept-script-fetch-options-integrity">integrity metadata</span>. Whether this
+        fetch fails therefore doesn't depend on whether the in-flight fetch has finished.</p>
+       </li>
+
+       <li><p><span>Queue a global task</span> on the <span>networking task source</span> given
+       <var>settingsObject</var>'s <span data-x="concept-settings-object-global">global
+       object</span> to run <var>onComplete</var> given null, and return.</p></li>
+      </ol>
 
       <p class="note">Running <var>onComplete</var> synchronously would mark a <code>script</code>
       element as ready during <span>prepare the script element</span>, before its <span>steps to run

@@ -121410,6 +121410,24 @@ dictionary <dfn dictionary>PromiseRejectionEventInit</dfn> : <span>EventInit</sp
       </ol>
      </li>
 
+     <li>
+      <p>If <var>global</var>'s <span>relevant settings object</span>'s <span
+      data-x="concept-settings-object-module-map">module map</span> contains a <span data-x="map
+      key">key</span> whose <span>URL record</span> <span data-x="concept-url-equals">equals</span>
+      <var>url</var>:</p>
+
+      <ol>
+       <li><p>The user agent may <span>report a warning to the console</span> indicating the
+       ignored rule.</p></li>
+
+       <li><p><span>Continue</span>.</p></li>
+      </ol>
+
+      <p class="note">The module was already fetched, or is being fetched, without this integrity
+      metadata. Applying it now would make a later import of the same module fail, even from a
+      module that already imported it successfully.</p>
+     </li>
+
      <li><p>Set <var>oldImportMap</var>'s <span
      data-x="concept-import-map-integrity">integrity</span>[<var>url</var>] to
      <var>integrity</var>.</p></li>

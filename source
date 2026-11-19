@@ -119211,7 +119211,14 @@ document.querySelector("button").addEventListener("click", bound);
       <p>If the result of running <span>match integrity metadata</span> given <var>options</var>'s
       <span data-x="concept-script-fetch-options-integrity">integrity metadata</span> and
       <var>existingEntry</var>'s <span data-x="module map entry integrity metadata">integrity
-      metadata</span> is false, then run <var>onComplete</var> given null, and return.</p>
+      metadata</span> is false, then <span>queue a global task</span> on the <span>networking task
+      source</span> given <var>settingsObject</var>'s <span
+      data-x="concept-settings-object-global">global object</span> to run <var>onComplete</var>
+      given null, and return.</p>
+
+      <p class="note">Running <var>onComplete</var> synchronously would mark a <code>script</code>
+      element as ready during <span>prepare the script element</span>, before its <span>steps to run
+      when the result is ready</span> are set.</p>
 
       <p class="note">Unlike <span data-x="consume a preloaded resource"><code>&lt;link
       rel="preload"></code> cache hits</span>, which ignore preloaded results and trigger a network

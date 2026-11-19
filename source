@@ -3122,6 +3122,7 @@ a.setAttribute('href', 'https://example.com/'); // change the content attribute 
      <li>The <dfn data-x-href="https://tc39.es/ecma262/#sec-detacharraybuffer">DetachArrayBuffer</dfn> abstract operation</li>
      <li>The <dfn data-x-href="https://tc39.es/ecma262/#sec-enumerableownproperties">EnumerableOwnProperties</dfn> abstract operation</li>
      <li>The <dfn data-x-href="https://tc39.es/ecma262/#sec-FinishLoadingImportedModule">FinishLoadingImportedModule</dfn> abstract operation</li>
+     <li>The <dfn data-x-href="https://tc39.es/ecma262/#sec-ModuleRequestsEqual">ModuleRequestsEqual</dfn> abstract operation</li>
      <li>The <dfn data-x="js-OrdinaryFunctionCreate" data-x-href="https://tc39.es/ecma262/#sec-ordinaryfunctioncreate">OrdinaryFunctionCreate</dfn> abstract operation</li>
      <li>The <dfn data-x="js-Get" data-x-href="https://tc39.es/ecma262/#sec-get-o-p">Get</dfn> abstract operation</li>
      <li>The <dfn data-x-href="https://tc39.es/ecma262/#sec-getactivescriptormodule">GetActiveScriptOrModule</dfn> abstract operation</li>
@@ -122574,6 +122575,19 @@ import "https://example.com/foo/../module2.mjs";</code></pre>
   must use the following implementation: <ref>JAVASCRIPT</ref></p>
 
   <ol>
+   <li>
+    <p>If <var>referrer</var>.[[LoadedModules]] contains a LoadedModuleRequest Record
+    <var>record</var> such that <span>ModuleRequestsEqual</span>(<var>record</var>,
+    <var>moduleRequest</var>) is true, then perform
+    <span>FinishLoadingImportedModule</span>(<var>referrer</var>, <var>moduleRequest</var>,
+    <var>payload</var>, <span>NormalCompletion</span>(<var>record</var>.[[Module]])) and
+    return.</p>
+
+    <p class="note">This keeps the result for the same <var>referrer</var> and
+    <var>moduleRequest</var> the same, as JavaScript requires, even if the <span>import map</span>'s
+    <span data-x="concept-import-map-integrity">integrity</span> has changed since.</p>
+   </li>
+
    <li><p>Let <var>settingsObject</var> be the <span>current settings object</span>.</p></li>
 
    <li>

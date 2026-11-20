@@ -145068,11 +145068,10 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
    <dd>Emit the <span>current input character</span> as a character token.</dd>
   </dl>
 
-  <p class="note">This state is like the <span>RCDATA state</span>, except that CDATA sections are
-  recognized, and so are comments, bogus comments, and processing instructions if the <span>foreign
-  RCDATA flag</span> is true. While the flag is true, the element's end tag is recognized before
-  any step that consumes a character, in any state, as described <span data-x="foreign RCDATA
-  flag">above</span>.</p>
+  <p class="note">This state is like the <span>RCDATA state</span>, except that comments, bogus
+  comments, processing instructions, and CDATA sections are recognized. While the <span>foreign
+  RCDATA flag</span> is true, the element's end tag is recognized before any step that consumes a
+  character, in any state, as described <span data-x="foreign RCDATA flag">above</span>.</p>
   </div>
 
 
@@ -145085,24 +145084,15 @@ dictionary <dfn dictionary>StorageEventInit</dfn> : <span>EventInit</span> {
 
    <dt>U+0021 EXCLAMATION MARK (!)</dt>
    <dd>
-    <p>If the <span>foreign RCDATA flag</span> is true, or if the next few characters are
-    "<code data-x="">[CDATA[</code>", then set the <var data-x="return state">return state</var>
-    to the <span>foreign RCDATA state</span> and switch to the <span>markup declaration open
-    state</span>.</p>
-
-    <p>Otherwise, emit a U+003C LESS-THAN SIGN character token and <span>reconsume</span> in the
-    <span>foreign RCDATA state</span>.</p>
+    <p>Set the <var data-x="return state">return state</var> to the <span>foreign RCDATA
+    state</span>. Switch to the <span>markup declaration open state</span>.</p>
    </dd>
 
    <dt>U+003F QUESTION MARK (?)</dt>
    <dd>
-    <p>If the <span>foreign RCDATA flag</span> is true, then set the <var data-x="return
-    state">return state</var> to the <span>foreign RCDATA state</span>, set the <var
-    data-x="temporary buffer">temporary buffer</var> to the empty string, and switch to the
-    <span>processing instruction open state</span>.</p>
-
-    <p>Otherwise, emit a U+003C LESS-THAN SIGN character token and <span>reconsume</span> in the
-    <span>foreign RCDATA state</span>.</p>
+    <p>Set the <var data-x="return state">return state</var> to the <span>foreign RCDATA
+    state</span>. Set the <var data-x="temporary buffer">temporary buffer</var> to the empty string.
+    Switch to the <span>processing instruction open state</span>.</p>
    </dd>
 
    <dt>Anything else</dt>
@@ -148445,6 +148435,11 @@ document.body.appendChild(text);
     the comment at the element's end tag.</p>
    </li>
 
+   <li><p>If the <span>adjusted current node</span> is the parser's <span>fragment context
+   element</span>, it is a <span>foreign RCDATA element</span>, and <var>data</var> contains the two
+   code points U+003C LESS-THAN SIGN (&lt;) and U+002F SOLIDUS (/) in sequence, then
+   return.</p></li>
+
    <li><p>Let <var>comment</var> be the result of <span data-x="create a comment node">creating a
    comment node</span> given <var>targetParent</var>'s <span>node document</span> and
    <var>data</var>.</p></li>
@@ -148482,6 +148477,11 @@ document.body.appendChild(text);
    current node</span> is not <var>targetParent</var>, and <var>data</var> contains the two code
    points U+003C
    LESS-THAN SIGN (&lt;) and U+002F SOLIDUS (/) in sequence, then return.</p></li>
+
+   <li><p>If the <span>adjusted current node</span> is the parser's <span>fragment context
+   element</span>, it is a <span>foreign RCDATA element</span>, and <var>data</var> contains the two
+   code points U+003C LESS-THAN SIGN (&lt;) and U+002F SOLIDUS (/) in sequence, then
+   return.</p></li>
 
    <li><p>Let <var>pi</var> be the result of <span data-x="create a processing instruction
    node">creating a processing instruction node</span> given <var>targetParent</var>'s <span>node
@@ -154035,9 +154035,9 @@ console.assert(container.firstChild instanceof SuperP);
       <p>Switch the tokenizer to the <span>foreign RCDATA state</span>. Leave the <span>foreign
       RCDATA flag</span> false.</p>
 
-      <p class="note">Comments and processing instructions are not recognized, because the end tag
-      of the context element cannot be recognized in the <span>fragment case</span>, so the
-      resulting nodes could contain it.</p>
+      <p class="note">The end tag of the context element isn't recognized in the <span>fragment
+      case</span>, so <span>insert a comment</span> and <span>insert a processing instruction</span>
+      drop comments and processing instructions that could contain it.</p>
      </dd>
 
      <dt>Any other element</dt>

@@ -108476,9 +108476,10 @@ location.href = '#foo';</code></pre>
 
   <hr>
 
-  <p>A <dfn>navigation ID</dfn> is a UUID string generated during navigation. It is used to
-  interface with the <cite>WebDriver BiDi</cite> specification as well as to track the <span>ongoing
-  navigation</span>. <ref>WEBDRIVERBIDI</ref></p>
+  <p>A <dfn>navigation ID</dfn> is a UUID string generated for each navigation, either by the
+  <span>navigate</span> algorithm or by its caller. It is used to interface with the <cite>WebDriver
+  BiDi</cite> specification as well as to track the <span>ongoing navigation</span>.
+  <ref>WEBDRIVERBIDI</ref></p>
 
   <hr>
 
@@ -108662,6 +108663,15 @@ location.href = '#foo';</code></pre>
 
    <li><p>If <var>navigationId</var> is null, then set <var>navigationId</var> to the result of
    <span>generating a random UUID</span>. <ref>WEBCRYPTO</ref></p></li>
+
+   <li>
+    <p><span>Assert</span>: <var>navigationId</var> is not the <span>navigation ID</span> of any
+    other navigation.</p>
+
+    <p class="note">Callers that provide <var>navigationId</var>, such as <cite>WebDriver
+    BiDi</cite>, generate it by <span>generating a random UUID</span> for each invocation of this
+    algorithm. <ref>WEBDRIVERBIDI</ref></p>
+   </li>
 
    <li>
     <p>If the <span>surrounding agent</span> is equal to <var>navigable</var>'s <span
